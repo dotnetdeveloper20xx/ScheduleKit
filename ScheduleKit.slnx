@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ScheduleKit.Api/ScheduleKit.Api.csproj" />
+    <Project Path="src/ScheduleKit.Application/ScheduleKit.Application.csproj" />
+    <Project Path="src/ScheduleKit.Demo/ScheduleKit.Demo.csproj" />
+    <Project Path="src/ScheduleKit.Domain/ScheduleKit.Domain.csproj" />
+    <Project Path="src/ScheduleKit.Infrastructure/ScheduleKit.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ScheduleKit.Api.Tests/ScheduleKit.Api.Tests.csproj" />
+    <Project Path="tests/ScheduleKit.Application.Tests/ScheduleKit.Application.Tests.csproj" />
+    <Project Path="tests/ScheduleKit.Domain.Tests/ScheduleKit.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

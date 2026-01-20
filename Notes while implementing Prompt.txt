@@ -1,0 +1,7 @@
+While you develop our application you must:
+
+Implment in sprints.
+Genearate and then keep updating a file named ProjectSprint.md where you list all sprints and their progress. Notes to ensure developer and possible employees are looking for.
+You must generate and then keep updateing a file name Onboarding.md. Use this to make notes of each and every thing you do so our new develop can understand our application inside out. The developer will the main to go person for this application.
+You must generate and then keep updating a file name DeveloperNotes.md that shows each and everything we did and why, this will act as go back and understand what developer decided, acted and achieved etc. Show the thinking of our developoer.
+NEVER ASSUME, ALWAYS CONSULT YOUR MAIN PROMPT - IMPROVEDPROMPT.MD.
