@@ -1,0 +1,456 @@
+Perfect, those decisions simplify things nicely. Let me update the project plan with these constraints locked in.
+
+---
+
+## Project charter (revised)
+
+**Project name:** ScheduleKit
+
+**Repository:** `github.com/dotnetdeveloper20xx/schedulekit`
+
+**License:** MIT
+
+**Summary:** A drop-in scheduling module for ASP.NET Core applications. Clone the repo, run it, and see it working. Integrate it into your own project via project reference or NuGet.
+
+---
+
+## Technical decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Database | SQL Server + In-Memory option | SQL Server for production, in-memory for development and testing |
+| Frontend | React 18+ with modern practices | Widely understood, great portfolio signal, embeddable anywhere |
+| Standalone demo | Yes | Clone and run immediately, no external dependencies |
+| License | MIT | Maximum flexibility, standard for portfolio projects |
+| Localization | English only | Keeps scope manageable |
+
+---
+
+## React frontend approach
+
+Since you want modern React practices, here's the stack:
+
+**Core:**
+- React 18
+- TypeScript
+- Vite for build tooling
+- React Router for navigation
+
+**State and data:**
+- TanStack Query (React Query) for server state
+- Zustand for client state (minimal, only where needed)
+
+**UI and styling:**
+- Tailwind CSS
+- Headless UI or Radix UI for accessible components
+- date-fns for date manipulation
+- react-big-calendar or build a custom calendar component
+
+**Forms:**
+- React Hook Form
+- Zod for validation
+
+**Project structure:**
+```
+schedulekit-ui/
+├── src/
+│   ├── api/              # API client and types
+│   ├── components/       # Shared UI components
+│   ├── features/
+│   │   ├── availability/ # Availability management
+│   │   ├── bookings/     # Booking management
+│   │   ├── event-types/  # Event type CRUD
+│   │   └── public/       # Public booking flow
+│   ├── hooks/            # Custom hooks
+│   ├── lib/              # Utilities
+│   └── App.tsx
+├── index.html
+├── package.json
+├── tailwind.config.js
+├── tsconfig.json
+└── vite.config.ts
+```
+
+---
+
+## Repository structure
+
+```
+schedulekit/
+│
+├── README.md
+├── LICENSE
+├── docker-compose.yml          # One command to run everything
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # Build and test on PR
+│
+├── docs/
+│   ├── getting-started.md
+│   ├── integration-guide.md
+│   ├── api-reference.md
+│   └── architecture.md
+│
+├── src/
+│   ├── ScheduleKit.Core/
+│   │   ├── Entities/
+│   │   │   ├── EventType.cs
+│   │   │   ├── Availability.cs
+│   │   │   ├── AvailabilityOverride.cs
+│   │   │   ├── Booking.cs
+│   │   │   └── BookingQuestion.cs
+│   │   ├── Services/
+│   │   │   ├── ISlotCalculator.cs
+│   │   │   ├── SlotCalculator.cs
+│   │   │   ├── IBookingService.cs
+│   │   │   └── BookingService.cs
+│   │   ├── Events/
+│   │   │   ├── BookingCreated.cs
+│   │   │   └── BookingCancelled.cs
+│   │   └── Interfaces/
+│   │       ├── IScheduleKitRepository.cs
+│   │       └── INotificationService.cs
+│   │
+│   ├── ScheduleKit.Infrastructure/
+│   │   ├── Data/
+│   │   │   ├── ScheduleKitDbContext.cs
+│   │   │   ├── Configurations/
+│   │   │   └── Migrations/
+│   │   ├── Repositories/
+│   │   │   └── ScheduleKitRepository.cs
+│   │   └── Services/
+│   │       └── EmailNotificationService.cs
+│   │
+│   ├── ScheduleKit.Web/
+│   │   ├── Endpoints/
+│   │   │   ├── EventTypeEndpoints.cs
+│   │   │   ├── AvailabilityEndpoints.cs
+│   │   │   ├── SlotEndpoints.cs
+│   │   │   └── BookingEndpoints.cs
+│   │   ├── Models/
+│   │   │   ├── Requests/
+│   │   │   └── Responses/
+│   │   └── Extensions/
+│   │       └── ServiceCollectionExtensions.cs
+│   │
+│   └── ScheduleKit.Demo/
+│       ├── Program.cs
+│       ├── appsettings.json
+│       └── appsettings.Development.json
+│
+├── ui/
+│   └── schedulekit-ui/         # React application
+│       ├── src/
+│       ├── package.json
+│       └── vite.config.ts
+│
+├── tests/
+│   ├── ScheduleKit.Core.Tests/
+│   ├── ScheduleKit.Infrastructure.Tests/
+│   └── ScheduleKit.Web.Tests/
+│
+└── samples/
+    └── SampleIntegration/      # Example of integrating into existing app
+```
+
+---
+
+## Quick start experience
+
+What someone sees when they clone the repo:
+
+**Option 1 — Docker (recommended)**
+```bash
+git clone https://github.com/[you]/schedulekit.git
+cd schedulekit
+docker-compose up
+```
+
+Opens browser to `http://localhost:3000` — fully working demo.
+
+**Option 2 — Manual**
+```bash
+# Terminal 1 - API
+cd src/ScheduleKit.Demo
+dotnet run
+
+# Terminal 2 - UI
+cd ui/schedulekit-ui
+npm install
+npm run dev
+```
+
+**What they see:**
+
+1. Landing page explaining what ScheduleKit is
+2. Demo login (seeded test user)
+3. Dashboard showing the host experience
+4. Public booking page showing the guest experience
+5. Link to documentation
+
+---
+
+## Database configuration
+
+```csharp
+// In-memory for development (default)
+builder.Services.AddScheduleKit(options =>
+{
+    options.UseInMemoryDatabase("ScheduleKitDemo");
+});
+
+// SQL Server for production
+builder.Services.AddScheduleKit(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ScheduleKit"));
+});
+```
+
+The demo app uses an environment variable to switch:
+
+```json
+// appsettings.Development.json
+{
+  "ScheduleKit": {
+    "UseInMemory": true
+  }
+}
+
+// appsettings.Production.json
+{
+  "ScheduleKit": {
+    "UseInMemory": false
+  },
+  "ConnectionStrings": {
+    "ScheduleKit": "Server=...;Database=...;"
+  }
+}
+```
+
+---
+
+## Phase 1 sprint breakdown
+
+### Sprint 1 (Week 1-2): Foundation
+
+**Backend:**
+- Set up solution structure and projects
+- Implement core entities
+- Create DbContext with configurations
+- Implement in-memory and SQL Server providers
+- Basic repository pattern
+- Health check endpoint
+
+**Frontend:**
+- Initialize React project with Vite
+- Set up Tailwind, TypeScript, folder structure
+- Create API client with TanStack Query
+- Build layout components (nav, sidebar, page wrapper)
+- Set up routing
+
+**DevOps:**
+- GitHub repo with README
+- Docker compose for local development
+- GitHub Actions for CI (build + test)
+
+**Deliverable:** Empty shell that runs, connects, and shows a placeholder dashboard.
+
+---
+
+### Sprint 2 (Week 3-4): Event types
+
+**Backend:**
+- EventType CRUD endpoints
+- Validation with FluentValidation
+- Unit tests for business logic
+
+**Frontend:**
+- Event types list page
+- Create/edit event type form
+- Delete confirmation
+- Duration and buffer time inputs
+
+**Deliverable:** Host can create and manage event types.
+
+---
+
+### Sprint 3 (Week 5-6): Availability
+
+**Backend:**
+- Availability rules endpoints
+- Override (blocked dates) endpoints
+- Slot calculation service
+- Timezone handling with NodaTime
+
+**Frontend:**
+- Weekly schedule editor (visual time blocks)
+- Date override management
+- Timezone selector
+
+**Deliverable:** Host can define when they're available.
+
+---
+
+### Sprint 4 (Week 7-8): Booking flow
+
+**Backend:**
+- Available slots endpoint (public)
+- Create booking endpoint (public)
+- Conflict detection
+- Booking confirmation
+
+**Frontend:**
+- Public booking page
+- Calendar date picker
+- Time slot selection
+- Booking form with custom questions
+- Confirmation page
+
+**Deliverable:** Guests can book appointments.
+
+---
+
+### Sprint 5 (Week 9-10): Dashboard and notifications
+
+**Backend:**
+- Bookings list endpoint
+- Cancel booking endpoint
+- Email notification service (optional SMTP or console logging)
+- Seeded demo data
+
+**Frontend:**
+- Host dashboard with upcoming bookings
+- Calendar view of bookings
+- Cancel booking flow
+- Empty states and loading states
+
+**Deliverable:** Complete Phase 1 MVP.
+
+---
+
+### Sprint 6 (Week 11-12): Polish and documentation
+
+**All:**
+- Bug fixes from testing
+- Performance review
+- Security review (input validation, auth checks)
+- Write getting-started guide
+- Write integration guide
+- Record demo video or GIFs for README
+- Sample integration project
+
+**Deliverable:** Portfolio-ready release.
+
+---
+
+## Definition of done
+
+A feature is complete when:
+
+- Code is written and compiles
+- Unit tests pass with 80%+ coverage on business logic
+- API endpoints have integration tests
+- UI is functional and responsive
+- Code is reviewed (or self-reviewed against checklist)
+- Documentation is updated if needed
+- No TypeScript or C# compiler warnings
+
+---
+
+## Demo scenarios
+
+The demo should showcase these flows:
+
+**Scenario 1 — Host setup**
+1. Log in as demo host
+2. Create an event type "30-minute consultation"
+3. Set availability (weekdays 9am-5pm)
+4. Block next Friday
+
+**Scenario 2 — Guest booking**
+1. Open public booking link
+2. Select the consultation event type
+3. Pick an available date
+4. Select a time slot
+5. Fill in details and confirm
+6. See confirmation
+
+**Scenario 3 — Host management**
+1. See new booking on dashboard
+2. View booking details
+3. Cancel a booking
+
+---
+
+## File: README.md (draft)
+
+```markdown
+# ScheduleKit
+
+A drop-in scheduling module for ASP.NET Core applications. Add Calendly-like 
+booking capabilities to your app in minutes.
+
+## Features
+
+- 📅 Availability management with weekly schedules and date overrides
+- 🎫 Multiple event types with custom durations
+- 🌍 Timezone-aware slot calculation
+- 📧 Email notifications
+- ⚛️ Modern React UI (or use the API headlessly)
+- 🔌 Pluggable into any ASP.NET Core application
+
+## Quick start
+
+```bash
+git clone https://github.com/[you]/schedulekit.git
+cd schedulekit
+docker-compose up
+```
+
+Open http://localhost:3000
+
+## Integration
+
+```csharp
+// Program.cs
+builder.Services.AddScheduleKit(options =>
+{
+    options.UseSqlServer(connectionString);
+});
+
+app.MapScheduleKitApi("/api/scheduling");
+```
+
+See the [integration guide](docs/integration-guide.md) for details.
+
+## Tech stack
+
+**Backend:** ASP.NET Core 8, Entity Framework Core, Minimal APIs
+
+**Frontend:** React 18, TypeScript, TanStack Query, Tailwind CSS
+
+## License
+
+MIT
+```
+
+---
+
+## What makes this portfolio-worthy
+
+This project demonstrates:
+
+- Clean architecture and separation of concerns
+- Modern C# practices (minimal APIs, records, nullable reference types)
+- Modern React practices (hooks, TypeScript, TanStack Query)
+- API design skills
+- Complex business logic (timezone handling, conflict detection)
+- Testing approach
+- Documentation
+- Developer experience focus (easy setup, clear integration path)
+- Full stack capability
+
+---
+
+
+UPDATE - DO NOT USE DOCKER, USE IN MEMORY OR LOCAL SQL.
