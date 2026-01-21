@@ -1,85 +1,73 @@
 # ScheduleKit - Resume Point
 
 **Date:** January 21, 2026
-**Last Session:** Sprint 5-6 Complete (Booking Management & Notifications)
+**Last Session:** Mock External Integrations & Bug Fixes Complete
 
 ---
 
-## What Was Completed
+## What Was Completed Today
 
-### Sprint 1-2: Foundation (100% Complete)
+### Mock External Integrations (NEW - Major Feature)
 
-**Backend:**
-- ✅ Solution structure with 8 projects
-- ✅ Domain entities with value objects
-- ✅ EF Core DbContext with configurations
-- ✅ MediatR setup with pipeline behaviors
-- ✅ EventType CRUD
-- ✅ Health check endpoint, Swagger/OpenAPI
-- ✅ Unit tests (85 passing)
+Implemented mock services to allow full demo without external API keys:
 
-**Frontend:**
-- ✅ Vite + React 18 + TypeScript 5.7
-- ✅ TanStack Query v5, Axios API client
-- ✅ Tailwind CSS, Layout components, UI components
-- ✅ Event type pages, Dashboard
+**Backend Services Created:**
+- ✅ `IExternalCalendarService` + `MockCalendarService` - Simulates Google/Microsoft calendar sync
+- ✅ `IVideoConferenceService` + `MockVideoConferenceService` - Simulates Zoom/Google Meet/Teams
+- ✅ `IOAuthService` + `MockOAuthService` - Simulates OAuth login (Google/Microsoft/GitHub)
+- ✅ `ExternalIntegrationSettings.cs` - Configuration for mock vs real services
 
-### Sprint 3-4: Core Scheduling (100% Complete)
+**Frontend OAuth Flow:**
+- ✅ OAuth buttons on login page (Google, Microsoft, GitHub)
+- ✅ `MockOAuthPage.tsx` - Simulates provider login screen
+- ✅ `OAuthCallbackPage.tsx` - Handles OAuth callback
+- ✅ `useOAuth.ts` - API hooks for OAuth
 
-**Backend:**
-- ✅ Availability entity and CRUD endpoints
-- ✅ AvailabilityOverride entity and endpoints
-- ✅ SlotCalculator service with timezone handling
-- ✅ Public endpoints with response caching
-- ✅ CreatePublicBookingCommand
+**Configuration:**
+- ✅ `appsettings.json` - `UseMockServices: true` toggle
+- ✅ `AddExternalIntegrations()` in DI - Configurable service registration
 
-**Frontend:**
-- ✅ Weekly availability editor
-- ✅ Date override management
-- ✅ Public booking page with time slot selection
-- ✅ API hooks for availability and slots
+### Bug Fixes
+- ✅ Fixed `AmbiguousMatchException` in `ValidationBehavior.cs` (reflection issue)
+- ✅ Fixed Vite proxy configuration to use correct backend port (58815)
+- ✅ Added `@microsoft/signalr` package for real-time updates
 
-### Sprint 5-6: Booking Management & Notifications (100% Complete)
-
-**Backend:**
-- ✅ GetBookingsQuery with pagination and filtering
-- ✅ GetBookingByIdQuery for booking details
-- ✅ CancelBookingCommand with host/guest support
-- ✅ RescheduleBookingCommand with slot validation
-- ✅ BookingsController with full CRUD operations
-- ✅ IEmailService interface and EmailService implementation
-  - Booking confirmation emails
-  - Cancellation emails
-  - Reschedule emails
-  - Reminder emails
-  - Host notification emails
-  - HTML email templates
-- ✅ ICalendarService and CalendarService
-  - ICS file generation for bookings
-  - ICS cancellation support
-  - Calendar reminders (15min, 1hr)
-- ✅ ICS download endpoint (`/api/v1/bookings/{id}/calendar.ics`)
-
-**Frontend:**
-- ✅ BookingsListPage with status filters and pagination
-- ✅ BookingDetailPage with guest info and actions
-- ✅ Cancel booking functionality with reason dialog
-- ✅ Route integration (`/bookings`, `/bookings/:id`)
+### Database Migration
+- ✅ `AddMeetingAndCalendarFields` migration applied
+- ✅ New Booking fields: MeetingPassword, ExternalMeetingId, CalendarEventId, CalendarLink
 
 ---
 
-## What's Next
+## Current Application State
 
-### Sprint 7-8: User Authentication & Settings
+### All Completed Features
 
-| Task | Status |
-|------|--------|
-| User entity and authentication | Not Started |
-| JWT token authentication | Not Started |
-| User registration and login | Not Started |
-| User settings/profile page | Not Started |
-| Timezone preferences | Not Started |
-| Email preferences | Not Started |
+| Sprint | Feature | Status |
+|--------|---------|--------|
+| 1-2 | Foundation (Domain, EF Core, API) | ✅ Complete |
+| 3-4 | Core Scheduling (Availability, Slots) | ✅ Complete |
+| 5-6 | Booking Management & Notifications | ✅ Complete |
+| 7-8 | User Authentication & Settings | ✅ Complete |
+| 9-10 | Real-time Updates (SignalR) | ✅ Complete |
+| - | Scheduling Controls (MinNotice, BookingWindow) | ✅ Complete |
+| - | Analytics Dashboard | ✅ Complete |
+| - | Embeddable Widget | ✅ Complete |
+| - | Mock External Integrations | ✅ Complete |
+| - | E2E Tests (Playwright setup) | ✅ Created |
+
+### Working Features
+- User registration and login (email/password + mock OAuth)
+- Event type CRUD with scheduling controls
+- Weekly availability management
+- Availability overrides (date-specific blocks)
+- Public booking flow with slot selection
+- Booking confirmation with meeting details
+- Dashboard with analytics
+- Embeddable widget for external sites
+- Real-time updates via SignalR
+- Mock OAuth login (Google/Microsoft/GitHub)
+- Mock video conferencing (Zoom/Meet/Teams)
+- Mock calendar sync
 
 ---
 
@@ -89,126 +77,143 @@
 # Navigate to project
 cd C:\Users\AfzalAhmed\source\repos\dotnetdeveloper20xx\ScheduleKit
 
-# Run the API
+# 1. Start backend (port 58815)
 cd src/ScheduleKit.Api
 dotnet run
 
-# Run tests (85 tests)
-dotnet test
-
-# Run the frontend
+# 2. Start frontend (port 3000) - in separate terminal
 cd ui/schedulekit-ui
-npm run dev
+node node_modules/vite/bin/vite.js --host
+# OR if not blocked by group policy: npm run dev
+
+# 3. Run tests
+dotnet test
 ```
 
-**API Endpoints:**
-- Swagger UI: https://localhost:5001/swagger
-- Health Check: https://localhost:5001/health
-
-**Frontend:**
-- http://localhost:3000
+**URLs:**
+- Frontend: http://localhost:3000
+- Login: http://localhost:3000/login
+- Backend Swagger: http://localhost:58815/swagger
+- Health Check: http://localhost:58815/health
 
 ---
 
-## Key Files Created in Sprint 5-6
+## Test Account
+- **Email:** dotnetdeveloper20xx@hotmail.com
+- **Name:** Afzal Ahmed
+- **Note:** Uses in-memory database, resets on restart
 
-**Backend - Queries:**
-- `src/ScheduleKit.Application/Queries/Bookings/GetBookingsQuery.cs`
-- `src/ScheduleKit.Application/Queries/Bookings/GetBookingByIdQuery.cs`
+---
 
-**Backend - Commands:**
-- `src/ScheduleKit.Application/Commands/Bookings/CancelBookingCommand.cs`
-- `src/ScheduleKit.Application/Commands/Bookings/RescheduleBookingCommand.cs`
+## Key Files Created Today
 
-**Backend - Services:**
-- `src/ScheduleKit.Application/Common/Interfaces/IEmailService.cs`
-- `src/ScheduleKit.Application/Common/Interfaces/ICalendarService.cs`
-- `src/ScheduleKit.Infrastructure/Services/EmailService.cs`
-- `src/ScheduleKit.Infrastructure/Services/CalendarService.cs`
+### New Backend Files
+```
+src/ScheduleKit.Domain/Interfaces/ICalendarService.cs (IExternalCalendarService)
+src/ScheduleKit.Domain/Interfaces/IOAuthService.cs
+src/ScheduleKit.Domain/Interfaces/IVideoConferenceService.cs
+src/ScheduleKit.Infrastructure/Services/MockCalendarService.cs
+src/ScheduleKit.Infrastructure/Services/MockOAuthService.cs
+src/ScheduleKit.Infrastructure/Services/MockVideoConferenceService.cs
+src/ScheduleKit.Infrastructure/Services/ExternalIntegrationSettings.cs
+src/ScheduleKit.Application/Commands/Auth/OAuthLoginCommand.cs
+src/ScheduleKit.Infrastructure/Data/Migrations/20260121144517_AddMeetingAndCalendarFields.cs
+```
 
-**Backend - API:**
-- `src/ScheduleKit.Api/Controllers/BookingsController.cs`
-- `src/ScheduleKit.Api/Models/BookingRequests.cs`
+### New Frontend Files
+```
+ui/schedulekit-ui/src/api/hooks/useOAuth.ts
+ui/schedulekit-ui/src/features/auth/MockOAuthPage.tsx
+ui/schedulekit-ui/src/features/auth/OAuthCallbackPage.tsx
+```
 
-**Frontend:**
-- `ui/schedulekit-ui/src/features/bookings/BookingsListPage.tsx`
-- `ui/schedulekit-ui/src/features/bookings/BookingDetailPage.tsx`
-- `ui/schedulekit-ui/src/api/hooks/useBookings.ts` (updated)
+### Modified Files
+```
+src/ScheduleKit.Api/Controllers/AuthController.cs - Added OAuth endpoints
+src/ScheduleKit.Api/appsettings.json - Added ExternalIntegrations config
+src/ScheduleKit.Application/Common/Behaviors/ValidationBehavior.cs - Fixed reflection bug
+src/ScheduleKit.Domain/Entities/Booking.cs - Added meeting/calendar fields
+src/ScheduleKit.Infrastructure/DependencyInjection.cs - Added AddExternalIntegrations()
+ui/schedulekit-ui/src/features/auth/LoginPage.tsx - Added OAuth buttons
+ui/schedulekit-ui/vite.config.ts - Fixed proxy configuration
+```
+
+---
+
+## Next Steps / TODO
+
+### High Priority
+1. **Run E2E Tests** - Playwright tests exist in `ui/schedulekit-ui/e2e/`
+2. **Test Complete Booking Flow** - Create event → Book → Reschedule → Cancel
+3. **Test Widget Embedding** - Verify iframe embedding works
+
+### Medium Priority
+4. **Real OAuth Integration** - Add actual Google/Microsoft/GitHub OAuth when keys available
+5. **Real Calendar Sync** - Implement Google Calendar / Outlook integration
+6. **Real Video Conferencing** - Implement Zoom API integration
+
+### Low Priority
+7. **Production Deployment** - Docker, CI/CD pipeline
+8. **Performance Optimization** - Caching, query optimization
 
 ---
 
 ## API Endpoints Summary
 
+### Authentication
+- `POST /api/v1/auth/register` - Register new user
+- `POST /api/v1/auth/login` - Login with email/password
+- `GET /api/v1/auth/me` - Get current user
+- `GET /api/v1/auth/oauth/providers` - Get OAuth providers
+- `GET /api/v1/auth/oauth/{provider}/authorize` - Start OAuth flow
+- `POST /api/v1/auth/oauth/callback` - Complete OAuth flow
+
 ### Event Types
 - `GET /api/v1/event-types` - List event types
-- `GET /api/v1/event-types/{id}` - Get event type
 - `POST /api/v1/event-types` - Create event type
 - `PUT /api/v1/event-types/{id}` - Update event type
 - `DELETE /api/v1/event-types/{id}` - Delete event type
 
-### Availability
-- `GET /api/v1/availability` - Get weekly availability
-- `PUT /api/v1/availability` - Update weekly availability
-- `GET /api/v1/availability/overrides` - List overrides
-- `POST /api/v1/availability/overrides` - Create override
-- `DELETE /api/v1/availability/overrides/{id}` - Delete override
-
 ### Bookings
-- `GET /api/v1/bookings` - List bookings (paginated, filterable)
+- `GET /api/v1/bookings` - List bookings (paginated)
 - `GET /api/v1/bookings/{id}` - Get booking details
 - `POST /api/v1/bookings/{id}/cancel` - Cancel booking
 - `POST /api/v1/bookings/{id}/reschedule` - Reschedule booking
-- `GET /api/v1/bookings/{id}/calendar.ics` - Download ICS file
 
-### Public
+### Public (Guest-facing)
 - `GET /api/v1/public/{hostSlug}/{eventSlug}` - Get event type
 - `GET /api/v1/public/slots/{eventTypeId}` - Get available slots
-- `GET /api/v1/public/dates/{eventTypeId}` - Get available dates
 - `POST /api/v1/public/bookings` - Create booking
+
+### Analytics
+- `GET /api/v1/analytics/dashboard` - Get dashboard stats
 
 ---
 
-## Project Structure
+## Git Status
+- **Branch:** main
+- **Latest Commit:** 1f6a358 - Fix validation behavior and update frontend proxy configuration
+- **Remote:** https://github.com/dotnetdeveloper20xx/ScheduleKit.git
 
-```
-ScheduleKit/
-├── src/
-│   ├── ScheduleKit.Domain/
-│   ├── ScheduleKit.Application/
-│   │   ├── Commands/
-│   │   │   ├── Availability/
-│   │   │   ├── Bookings/      # Cancel, Reschedule, CreatePublic
-│   │   │   └── EventTypes/
-│   │   ├── Queries/
-│   │   │   ├── Availability/
-│   │   │   ├── Bookings/      # GetBookings, GetBookingById
-│   │   │   └── EventTypes/
-│   │   └── Common/
-│   │       └── Interfaces/    # IEmailService, ICalendarService
-│   ├── ScheduleKit.Infrastructure/
-│   │   └── Services/          # EmailService, CalendarService, SlotCalculator
-│   ├── ScheduleKit.Api/
-│   │   └── Controllers/       # BookingsController, etc.
-│   └── ScheduleKit.Demo/
-├── tests/
-├── ui/
-│   └── schedulekit-ui/
-│       └── src/
-│           └── features/
-│               ├── bookings/  # BookingsListPage, BookingDetailPage
-│               ├── booking/   # PublicBookingPage
-│               ├── availability/
-│               ├── event-types/
-│               └── dashboard/
-└── resume.md
-```
+---
+
+## Architecture Notes
+- Clean Architecture: Domain → Application → Infrastructure → Api
+- CQRS pattern with MediatR for commands/queries
+- Result pattern for error handling (no exceptions for business logic)
+- Value Objects for domain concepts (Duration, TimeSlot, GuestInfo, etc.)
+- EF Core with in-memory database for development
+- SignalR for real-time booking updates
+- Mock services toggle via `ExternalIntegrations.UseMockServices` in appsettings
 
 ---
 
 ## Resume Instructions
 
 1. Read this file for context
-2. Check `improvedPrompt.md` for specifications
-3. Continue with Sprint 7-8: User Authentication & Settings
+2. Start backend: `dotnet run` in `src/ScheduleKit.Api`
+3. Start frontend: `node node_modules/vite/bin/vite.js --host` in `ui/schedulekit-ui`
+4. Open http://localhost:3000
+5. Continue with testing or new features as needed
 
-**Remember:** NEVER ASSUME, ALWAYS CONSULT `improvedPrompt.md`
+**Remember:** Check `improvedPrompt.md` for original specifications if needed.
