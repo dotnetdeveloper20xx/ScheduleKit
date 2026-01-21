@@ -28,7 +28,13 @@
       "Bash(dotnet run:*)",
       "Bash(npm run dev:*)",
       "Bash(dotnet ef database update:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(findstr:*)",
+      "Bash(curl:*)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(start http://localhost:3000/login)"
     ]
   }
 }
