@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import { PageContainer, PageHeader } from '@/components/layout/PageContainer';
-import { Button, Card, CardContent } from '@/components/ui';
+import { Button, Card, CardContent, SkeletonEventTypeCard } from '@/components/ui';
 import { useEventTypes, useDeleteEventType } from '@/api/hooks/useEventTypes';
+import { useAuth } from '@/contexts/AuthContext';
 import { EventTypeCard } from './EventTypeCard';
 
 export function EventTypeListPage() {
+  const { user } = useAuth();
   const { data: eventTypes, isLoading, error } = useEventTypes();
   const deleteEventType = useDeleteEventType();
 
@@ -45,13 +47,7 @@ export function EventTypeListPage() {
       {isLoading && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent>
-                <div className="mb-4 h-4 w-3/4 rounded bg-gray-200" />
-                <div className="mb-2 h-3 w-1/2 rounded bg-gray-200" />
-                <div className="h-3 w-full rounded bg-gray-200" />
-              </CardContent>
-            </Card>
+            <SkeletonEventTypeCard key={i} />
           ))}
         </div>
       )}
@@ -117,6 +113,7 @@ export function EventTypeListPage() {
             <EventTypeCard
               key={eventType.id}
               eventType={eventType}
+              hostSlug={user?.slug}
               onDelete={handleDelete}
             />
           ))}

@@ -83,3 +83,14 @@ public record RescheduleBookingRequest
     /// </summary>
     public DateTime NewStartTimeUtc { get; init; }
 }
+
+/// <summary>
+/// Request model for public guest rescheduling via token.
+/// </summary>
+public record PublicRescheduleRequest
+{
+    /// <summary>
+    /// The new start time in UTC.
+    /// </summary>
+    public DateTime NewStartTimeUtc { get; init; }
+}

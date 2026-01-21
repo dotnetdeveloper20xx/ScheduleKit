@@ -53,9 +53,9 @@ public class GetAvailableDatesQueryHandler
         if (!eventType.IsActive)
             return Result.Failure<AvailableDatesResponse>("This event type is not currently accepting bookings.");
 
-        // Calculate date range (default: 60 days booking window)
+        // Calculate date range using the event type's booking window
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var bookingWindowDays = 60; // TODO: Add BookingWindow value object to EventType
+        var bookingWindowDays = eventType.BookingWindow.Days;
         var endDate = today.AddDays(bookingWindowDays);
 
         // Get host's availability

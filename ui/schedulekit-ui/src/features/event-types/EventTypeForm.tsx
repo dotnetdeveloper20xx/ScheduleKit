@@ -25,6 +25,19 @@ const eventTypeSchema = z.object({
     .number()
     .min(0, 'Buffer must be at least 0 minutes')
     .max(120, 'Buffer must not exceed 2 hours'),
+  minimumNoticeMinutes: z.coerce
+    .number()
+    .min(0, 'Minimum notice must be at least 0')
+    .max(10080, 'Minimum notice cannot exceed 7 days'),
+  bookingWindowDays: z.coerce
+    .number()
+    .min(1, 'Booking window must be at least 1 day')
+    .max(365, 'Booking window cannot exceed 365 days'),
+  maxBookingsPerDay: z.coerce
+    .number()
+    .min(1, 'Must allow at least 1 booking per day')
+    .optional()
+    .or(z.literal('')),
   locationType: z.string().min(1, 'Location type is required'),
   locationDetails: z.string().optional(),
   color: z.string().optional(),
@@ -66,6 +79,28 @@ const bufferOptions: SelectOption[] = [
   { value: '60', label: '1 hour' },
 ];
 
+const minimumNoticeOptions: SelectOption[] = [
+  { value: '0', label: 'No minimum notice' },
+  { value: '15', label: '15 minutes' },
+  { value: '30', label: '30 minutes' },
+  { value: '60', label: '1 hour' },
+  { value: '120', label: '2 hours' },
+  { value: '240', label: '4 hours' },
+  { value: '720', label: '12 hours' },
+  { value: '1440', label: '24 hours' },
+  { value: '2880', label: '48 hours' },
+];
+
+const bookingWindowOptions: SelectOption[] = [
+  { value: '7', label: '1 week' },
+  { value: '14', label: '2 weeks' },
+  { value: '30', label: '30 days' },
+  { value: '60', label: '60 days' },
+  { value: '90', label: '90 days' },
+  { value: '180', label: '6 months' },
+  { value: '365', label: '1 year' },
+];
+
 const colorOptions = [
   '#3b82f6', // Blue
   '#10b981', // Green
@@ -97,6 +132,9 @@ export function EventTypeForm({
       durationMinutes: defaultValues?.durationMinutes ?? 30,
       bufferBeforeMinutes: defaultValues?.bufferBeforeMinutes ?? 0,
       bufferAfterMinutes: defaultValues?.bufferAfterMinutes ?? 0,
+      minimumNoticeMinutes: defaultValues?.minimumNoticeMinutes ?? 60,
+      bookingWindowDays: defaultValues?.bookingWindowDays ?? 60,
+      maxBookingsPerDay: defaultValues?.maxBookingsPerDay ?? '',
       locationType: defaultValues?.locationType ?? 'Zoom',
       locationDetails: defaultValues?.locationDetails ?? '',
       color: defaultValues?.color ?? '#3b82f6',
@@ -124,6 +162,9 @@ export function EventTypeForm({
       durationMinutes: data.durationMinutes,
       bufferBeforeMinutes: data.bufferBeforeMinutes,
       bufferAfterMinutes: data.bufferAfterMinutes,
+      minimumNoticeMinutes: data.minimumNoticeMinutes,
+      bookingWindowDays: data.bookingWindowDays,
+      maxBookingsPerDay: data.maxBookingsPerDay ? Number(data.maxBookingsPerDay) : undefined,
       locationType: data.locationType,
       locationDetails: data.locationDetails || undefined,
       color: data.color || undefined,
@@ -134,7 +175,7 @@ export function EventTypeForm({
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       {/* Basic Info */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Basic Information</h3>
 
         <Input
           label="Event Name"
@@ -155,7 +196,7 @@ export function EventTypeForm({
 
       {/* Duration & Buffers */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900">Duration & Buffers</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Duration & Buffers</h3>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Select
@@ -184,9 +225,42 @@ export function EventTypeForm({
         </div>
       </div>
 
+      {/* Scheduling Controls */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Scheduling Controls</h3>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Select
+            label="Minimum Notice"
+            options={minimumNoticeOptions}
+            error={errors.minimumNoticeMinutes?.message}
+            hint="How far in advance guests must book"
+            {...register('minimumNoticeMinutes')}
+          />
+
+          <Select
+            label="Booking Window"
+            options={bookingWindowOptions}
+            error={errors.bookingWindowDays?.message}
+            hint="How far ahead guests can book"
+            {...register('bookingWindowDays')}
+          />
+
+          <Input
+            label="Max Bookings Per Day"
+            type="number"
+            min={1}
+            placeholder="Unlimited"
+            error={errors.maxBookingsPerDay?.message}
+            hint="Leave empty for no limit"
+            {...register('maxBookingsPerDay')}
+          />
+        </div>
+      </div>
+
       {/* Location */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900">Meeting Location</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Meeting Location</h3>
 
         <Select
           label="Location Type"
@@ -214,7 +288,7 @@ export function EventTypeForm({
 
       {/* Color */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900">Appearance</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Appearance</h3>
 
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700">

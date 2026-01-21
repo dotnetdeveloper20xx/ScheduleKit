@@ -3,6 +3,7 @@ import { PageContainer, PageHeader } from '@/components/layout/PageContainer';
 import { Card, CardContent } from '@/components/ui';
 import { useEventTypes } from '@/api/hooks/useEventTypes';
 import { useRealtimeBookings } from '@/hooks';
+import { AnalyticsSection } from './components/AnalyticsCard';
 
 export function DashboardPage() {
   const { data: eventTypes, isLoading } = useEventTypes();
@@ -101,6 +102,12 @@ export function DashboardPage() {
             </Card>
           </Link>
         ))}
+      </div>
+
+      {/* Analytics Section */}
+      <div className="mb-8">
+        <h2 className="mb-4 text-lg font-medium text-gray-900">Analytics</h2>
+        <AnalyticsSection />
       </div>
 
       {/* Quick Actions */}

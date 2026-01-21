@@ -21,6 +21,9 @@ public record CreateEventTypeCommand : ICommand<EventTypeResponse>
     public int DurationMinutes { get; init; }
     public int BufferBeforeMinutes { get; init; }
     public int BufferAfterMinutes { get; init; }
+    public int MinimumNoticeMinutes { get; init; } = 60;
+    public int BookingWindowDays { get; init; } = 60;
+    public int? MaxBookingsPerDay { get; init; }
     public string LocationType { get; init; } = string.Empty;
     public string? LocationDetails { get; init; }
     public string? Color { get; init; }
@@ -51,6 +54,16 @@ public class CreateEventTypeCommandValidator : AbstractValidator<CreateEventType
 
         RuleFor(x => x.BufferAfterMinutes)
             .InclusiveBetween(0, 120).WithMessage("Buffer after must be between 0 and 120 minutes.");
+
+        RuleFor(x => x.MinimumNoticeMinutes)
+            .InclusiveBetween(0, 10080).WithMessage("Minimum notice must be between 0 and 10080 minutes (7 days).");
+
+        RuleFor(x => x.BookingWindowDays)
+            .InclusiveBetween(1, 365).WithMessage("Booking window must be between 1 and 365 days.");
+
+        RuleFor(x => x.MaxBookingsPerDay)
+            .GreaterThanOrEqualTo(1).When(x => x.MaxBookingsPerDay.HasValue)
+            .WithMessage("Maximum bookings per day must be at least 1.");
 
         RuleFor(x => x.LocationType)
             .NotEmpty().WithMessage("Location type is required.")
@@ -110,6 +123,9 @@ public class CreateEventTypeCommandHandler : IRequestHandler<CreateEventTypeComm
             request.Description,
             request.BufferBeforeMinutes,
             request.BufferAfterMinutes,
+            request.MinimumNoticeMinutes,
+            request.BookingWindowDays,
+            request.MaxBookingsPerDay,
             request.Color);
 
         if (eventTypeResult.IsFailure)

@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, Button } from '@/components/ui';
 import type { EventTypeResponse } from '@/api/types';
 import { cn } from '@/lib/utils';
+import { EmbedCodeModal } from '@/features/widget/EmbedCodeModal';
 
 interface EventTypeCardProps {
   eventType: EventTypeResponse;
+  hostSlug?: string;
   onDelete: (id: string) => void;
 }
 
@@ -51,7 +54,9 @@ const locationIcons: Record<string, React.ReactNode> = {
   ),
 };
 
-export function EventTypeCard({ eventType, onDelete }: EventTypeCardProps) {
+export function EventTypeCard({ eventType, hostSlug, onDelete }: EventTypeCardProps) {
+  const [showEmbedModal, setShowEmbedModal] = useState(false);
+
   const colorStyles = eventType.color
     ? { borderLeftColor: eventType.color }
     : { borderLeftColor: '#3b82f6' };
@@ -139,9 +144,10 @@ export function EventTypeCard({ eventType, onDelete }: EventTypeCardProps) {
             </Link>
             <button
               onClick={() => {
-                navigator.clipboard.writeText(
-                  `${window.location.origin}/book/${eventType.slug}`
-                );
+                const bookingUrl = hostSlug
+                  ? `${window.location.origin}/book/${hostSlug}/${eventType.slug}`
+                  : `${window.location.origin}/book/${eventType.slug}`;
+                navigator.clipboard.writeText(bookingUrl);
               }}
               className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
               title="Copy booking link"
@@ -160,6 +166,27 @@ export function EventTypeCard({ eventType, onDelete }: EventTypeCardProps) {
                 />
               </svg>
             </button>
+            {hostSlug && (
+              <button
+                onClick={() => setShowEmbedModal(true)}
+                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                title="Get embed code"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"
+                  />
+                </svg>
+              </button>
+            )}
           </div>
           <button
             onClick={() => onDelete(eventType.id)}
@@ -182,6 +209,16 @@ export function EventTypeCard({ eventType, onDelete }: EventTypeCardProps) {
           </button>
         </div>
       </CardContent>
+
+      {/* Embed Code Modal */}
+      {hostSlug && (
+        <EmbedCodeModal
+          isOpen={showEmbedModal}
+          onClose={() => setShowEmbedModal(false)}
+          hostSlug={hostSlug}
+          eventSlug={eventType.slug}
+        />
+      )}
     </Card>
   );
 }

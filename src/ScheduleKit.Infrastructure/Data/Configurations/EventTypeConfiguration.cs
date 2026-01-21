@@ -51,6 +51,26 @@ public class EventTypeConfiguration : IEntityTypeConfiguration<EventType>
                 v => BufferTime.FromMinutes(v))
             .IsRequired();
 
+        // Configure MinimumNotice value object
+        builder.Property(e => e.MinimumNotice)
+            .HasConversion(
+                m => m.Minutes,
+                v => MinimumNotice.FromMinutes(v))
+            .IsRequired()
+            .HasDefaultValue(MinimumNotice.OneHour);
+
+        // Configure BookingWindow value object
+        builder.Property(e => e.BookingWindow)
+            .HasConversion(
+                b => b.Days,
+                v => BookingWindow.FromDays(v))
+            .IsRequired()
+            .HasDefaultValue(BookingWindow.SixtyDays);
+
+        // Configure MaxBookingsPerDay (nullable)
+        builder.Property(e => e.MaxBookingsPerDay)
+            .IsRequired(false);
+
         // Configure MeetingLocation as owned entity
         builder.OwnsOne(e => e.Location, location =>
         {

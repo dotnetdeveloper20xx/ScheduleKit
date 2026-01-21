@@ -1,0 +1,10 @@
+# Playwright test results
+test-results/
+playwright-report/
+
+# Authentication state (contains tokens)
+.auth/*.json
+
+# Screenshots and videos
+screenshots/
+videos/

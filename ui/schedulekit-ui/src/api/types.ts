@@ -29,6 +29,9 @@ export interface EventTypeResponse {
   durationMinutes: number;
   bufferBeforeMinutes: number;
   bufferAfterMinutes: number;
+  minimumNoticeMinutes: number;
+  bookingWindowDays: number;
+  maxBookingsPerDay?: number;
   locationType: LocationType;
   locationDetails?: string;
   locationDisplayName?: string;
@@ -46,6 +49,44 @@ export interface BookingQuestionResponse {
   isRequired: boolean;
   options: string[];
   displayOrder: number;
+}
+
+export interface AddBookingQuestionRequest {
+  questionText: string;
+  type: QuestionType;
+  isRequired: boolean;
+  options?: string[];
+}
+
+export interface UpdateBookingQuestionRequest {
+  questionText: string;
+  type: QuestionType;
+  isRequired: boolean;
+  options?: string[];
+}
+
+export interface ReorderQuestionsRequest {
+  questionIds: string[];
+}
+
+export interface RescheduleBookingInfoResponse {
+  bookingId: string;
+  eventTypeId: string;
+  eventTypeName: string;
+  durationMinutes: number;
+  guestName: string;
+  guestEmail: string;
+  currentStartTimeUtc: string;
+  currentEndTimeUtc: string;
+  guestTimezone: string;
+  status: string;
+  locationType: string;
+  locationDetails?: string;
+  locationDisplayName?: string;
+}
+
+export interface PublicRescheduleRequest {
+  newStartTimeUtc: string;
 }
 
 export type LocationType =
@@ -69,6 +110,9 @@ export interface CreateEventTypeRequest {
   durationMinutes: number;
   bufferBeforeMinutes: number;
   bufferAfterMinutes: number;
+  minimumNoticeMinutes: number;
+  bookingWindowDays: number;
+  maxBookingsPerDay?: number;
   locationType: string;
   locationDetails?: string;
   color?: string;
@@ -80,6 +124,9 @@ export interface UpdateEventTypeRequest {
   durationMinutes: number;
   bufferBeforeMinutes: number;
   bufferAfterMinutes: number;
+  minimumNoticeMinutes: number;
+  bookingWindowDays: number;
+  maxBookingsPerDay?: number;
   locationType: string;
   locationDetails?: string;
   color?: string;
@@ -193,6 +240,9 @@ export interface BookingResponse {
   cancellationReason?: string;
   cancelledAtUtc?: string;
   meetingLink?: string;
+  locationType: string;
+  locationDetails?: string;
+  locationDisplayName?: string;
   createdAtUtc: string;
   responses: BookingQuestionAnswerResponse[];
 }
@@ -229,6 +279,9 @@ export interface BookingConfirmationResponse {
   endTimeUtc: string;
   guestTimezone: string;
   meetingLink?: string;
+  locationType: string;
+  locationDetails?: string;
+  locationDisplayName?: string;
   cancellationLink: string;
   rescheduleLink: string;
 }

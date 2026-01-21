@@ -3,6 +3,7 @@ import { PageContainer, PageHeader } from '@/components/layout/PageContainer';
 import { Card, CardContent } from '@/components/ui';
 import { useEventType, useUpdateEventType } from '@/api/hooks/useEventTypes';
 import { EventTypeForm } from './EventTypeForm';
+import { QuestionManager } from './components/QuestionManager';
 import type { CreateEventTypeRequest } from '@/api/types';
 
 export function EventTypeEditPage() {
@@ -72,16 +73,28 @@ export function EventTypeEditPage() {
         description={`Editing "${eventType.name}"`}
       />
 
-      <Card>
-        <CardContent className="py-6">
-          <EventTypeForm
-            defaultValues={eventType}
-            onSubmit={handleSubmit}
-            isLoading={updateEventType.isPending}
-            submitLabel="Save Changes"
-          />
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="py-6">
+            <EventTypeForm
+              defaultValues={eventType}
+              onSubmit={handleSubmit}
+              isLoading={updateEventType.isPending}
+              submitLabel="Save Changes"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Questions Section */}
+        <Card>
+          <CardContent className="py-6">
+            <QuestionManager
+              eventTypeId={eventType.id}
+              questions={eventType.questions}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </PageContainer>
   );
 }

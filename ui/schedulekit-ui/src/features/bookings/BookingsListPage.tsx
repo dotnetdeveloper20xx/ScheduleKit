@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { format, parseISO, isPast, isFuture } from 'date-fns';
 import { PageContainer, PageHeader } from '@/components/layout/PageContainer';
-import { Button, Card, CardContent } from '@/components/ui';
+import { Button, Card, CardContent, SkeletonBookingCard } from '@/components/ui';
 import { useBookings, useCancelBooking } from '@/api/hooks/useBookings';
 import type { BookingStatus } from '@/api/types';
 import { cn } from '@/lib/utils';
@@ -83,7 +83,7 @@ export function BookingsListPage() {
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-100" />
+            <SkeletonBookingCard key={i} />
           ))}
         </div>
       ) : data?.items && data.items.length > 0 ? (

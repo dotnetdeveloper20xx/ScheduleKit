@@ -3,6 +3,7 @@ using ScheduleKit.Api.Models;
 using ScheduleKit.Application.Commands.Bookings;
 using ScheduleKit.Application.Common.DTOs;
 using ScheduleKit.Application.Queries.Availability;
+using ScheduleKit.Application.Queries.Bookings;
 using ScheduleKit.Application.Queries.EventTypes;
 
 namespace ScheduleKit.Api.Controllers;
@@ -207,5 +208,101 @@ public class PublicController : ControllerBase
             nameof(CreateBooking),
             new { id = result.Value.BookingId },
             result.Value);
+    }
+
+    /// <summary>
+    /// Get booking information for rescheduling using a reschedule token.
+    /// </summary>
+    /// <param name="token">The reschedule token from the booking confirmation.</param>
+    /// <returns>Booking details needed for rescheduling.</returns>
+    [HttpGet("reschedule/{token}")]
+    [ProducesResponseType(typeof(RescheduleBookingInfoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRescheduleInfo(string token)
+    {
+        var query = new GetBookingByRescheduleTokenQuery { Token = token };
+        var result = await Mediator.Send(query);
+
+        if (result.IsFailure)
+        {
+            if (result.Error.Contains("not found") || result.Error.Contains("expired"))
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Not Found",
+                    Detail = result.Error,
+                    Status = StatusCodes.Status404NotFound
+                });
+            }
+
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Bad Request",
+                Detail = result.Error,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Reschedule a booking to a new time slot using the reschedule token.
+    /// </summary>
+    /// <param name="token">The reschedule token from the booking confirmation.</param>
+    /// <param name="request">The new time slot details.</param>
+    /// <returns>Updated booking confirmation.</returns>
+    [HttpPost("reschedule/{token}")]
+    [ProducesResponseType(typeof(BookingResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RescheduleBooking(string token, [FromBody] PublicRescheduleRequest request)
+    {
+        // First validate the token
+        var infoQuery = new GetBookingByRescheduleTokenQuery { Token = token };
+        var infoResult = await Mediator.Send(infoQuery);
+
+        if (infoResult.IsFailure)
+        {
+            if (infoResult.Error.Contains("not found") || infoResult.Error.Contains("expired"))
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Not Found",
+                    Detail = infoResult.Error,
+                    Status = StatusCodes.Status404NotFound
+                });
+            }
+
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Bad Request",
+                Detail = infoResult.Error,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        // Perform the reschedule
+        var command = new RescheduleBookingCommand
+        {
+            BookingId = infoResult.Value.BookingId,
+            RescheduleToken = token,
+            NewStartTimeUtc = request.NewStartTimeUtc
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Bad Request",
+                Detail = result.Error,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        return Ok(result.Value);
     }
 }

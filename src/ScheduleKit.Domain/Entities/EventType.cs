@@ -20,6 +20,9 @@ public class EventType : BaseEntity, IAggregateRoot
     public Duration Duration { get; private set; } = null!;
     public BufferTime BufferBefore { get; private set; } = null!;
     public BufferTime BufferAfter { get; private set; } = null!;
+    public MinimumNotice MinimumNotice { get; private set; } = null!;
+    public BookingWindow BookingWindow { get; private set; } = null!;
+    public int? MaxBookingsPerDay { get; private set; }
     public MeetingLocation Location { get; private set; } = null!;
     public bool IsActive { get; private set; }
     public string? Color { get; private set; }
@@ -37,6 +40,9 @@ public class EventType : BaseEntity, IAggregateRoot
         Duration duration,
         BufferTime bufferBefore,
         BufferTime bufferAfter,
+        MinimumNotice minimumNotice,
+        BookingWindow bookingWindow,
+        int? maxBookingsPerDay,
         MeetingLocation location,
         string? color)
     {
@@ -48,6 +54,9 @@ public class EventType : BaseEntity, IAggregateRoot
         Duration = duration;
         BufferBefore = bufferBefore;
         BufferAfter = bufferAfter;
+        MinimumNotice = minimumNotice;
+        BookingWindow = bookingWindow;
+        MaxBookingsPerDay = maxBookingsPerDay;
         Location = location;
         IsActive = true;
         Color = color;
@@ -67,6 +76,9 @@ public class EventType : BaseEntity, IAggregateRoot
         string? description = null,
         int bufferBeforeMinutes = 0,
         int bufferAfterMinutes = 0,
+        int minimumNoticeMinutes = 60,
+        int bookingWindowDays = 60,
+        int? maxBookingsPerDay = null,
         string? color = null)
     {
         if (hostUserId == Guid.Empty)
@@ -94,6 +106,17 @@ public class EventType : BaseEntity, IAggregateRoot
         if (bufferAfterResult.IsFailure)
             return Result.Failure<EventType>(bufferAfterResult.Error);
 
+        var minimumNoticeResult = MinimumNotice.Create(minimumNoticeMinutes);
+        if (minimumNoticeResult.IsFailure)
+            return Result.Failure<EventType>(minimumNoticeResult.Error);
+
+        var bookingWindowResult = BookingWindow.Create(bookingWindowDays);
+        if (bookingWindowResult.IsFailure)
+            return Result.Failure<EventType>(bookingWindowResult.Error);
+
+        if (maxBookingsPerDay.HasValue && maxBookingsPerDay.Value < 1)
+            return Result.Failure<EventType>("Maximum bookings per day must be at least 1.");
+
         if (description?.Length > 2000)
             return Result.Failure<EventType>("Description is too long.");
 
@@ -105,6 +128,9 @@ public class EventType : BaseEntity, IAggregateRoot
             durationResult.Value,
             bufferBeforeResult.Value,
             bufferAfterResult.Value,
+            minimumNoticeResult.Value,
+            bookingWindowResult.Value,
+            maxBookingsPerDay,
             location,
             color));
     }
@@ -118,6 +144,9 @@ public class EventType : BaseEntity, IAggregateRoot
         int durationMinutes,
         int bufferBeforeMinutes,
         int bufferAfterMinutes,
+        int minimumNoticeMinutes,
+        int bookingWindowDays,
+        int? maxBookingsPerDay,
         MeetingLocation location,
         string? color)
     {
@@ -139,6 +168,17 @@ public class EventType : BaseEntity, IAggregateRoot
         if (bufferAfterResult.IsFailure)
             return Result.Failure(bufferAfterResult.Error);
 
+        var minimumNoticeResult = MinimumNotice.Create(minimumNoticeMinutes);
+        if (minimumNoticeResult.IsFailure)
+            return Result.Failure(minimumNoticeResult.Error);
+
+        var bookingWindowResult = BookingWindow.Create(bookingWindowDays);
+        if (bookingWindowResult.IsFailure)
+            return Result.Failure(bookingWindowResult.Error);
+
+        if (maxBookingsPerDay.HasValue && maxBookingsPerDay.Value < 1)
+            return Result.Failure("Maximum bookings per day must be at least 1.");
+
         if (description?.Length > 2000)
             return Result.Failure("Description is too long.");
 
@@ -156,6 +196,9 @@ public class EventType : BaseEntity, IAggregateRoot
         Duration = durationResult.Value;
         BufferBefore = bufferBeforeResult.Value;
         BufferAfter = bufferAfterResult.Value;
+        MinimumNotice = minimumNoticeResult.Value;
+        BookingWindow = bookingWindowResult.Value;
+        MaxBookingsPerDay = maxBookingsPerDay;
         Location = location;
         Color = color;
         SetUpdatedAt();

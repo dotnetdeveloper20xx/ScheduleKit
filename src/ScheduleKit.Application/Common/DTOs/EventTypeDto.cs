@@ -13,6 +13,9 @@ public record EventTypeResponse
     public int DurationMinutes { get; init; }
     public int BufferBeforeMinutes { get; init; }
     public int BufferAfterMinutes { get; init; }
+    public int MinimumNoticeMinutes { get; init; }
+    public int BookingWindowDays { get; init; }
+    public int? MaxBookingsPerDay { get; init; }
     public string LocationType { get; init; } = string.Empty;
     public string? LocationDetails { get; init; }
     public string? LocationDisplayName { get; init; }

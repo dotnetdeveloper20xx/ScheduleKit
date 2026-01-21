@@ -30,6 +30,18 @@ public class SlotCalculator : ISlotCalculator
             return slots; // No slots available - full day blocked
         }
 
+        // Check max bookings per day limit
+        if (eventType.MaxBookingsPerDay.HasValue)
+        {
+            var confirmedBookingsOnDate = existingBookings
+                .Count(b => DateOnly.FromDateTime(b.StartTimeUtc) == date &&
+                           b.Status != BookingStatus.Cancelled);
+            if (confirmedBookingsOnDate >= eventType.MaxBookingsPerDay.Value)
+            {
+                return slots; // No slots available - max bookings reached for this day
+            }
+        }
+
         // Get base availability for this day of week
         var dayAvailability = availabilities.FirstOrDefault(a => a.DayOfWeek == date.DayOfWeek);
 
@@ -69,10 +81,10 @@ public class SlotCalculator : ISlotCalculator
         var slotInterval = 15; // Slots start every 15 minutes
         var currentTime = baseStartTime;
 
-        // Get minimum notice cutoff (in host timezone) - default 60 minutes
+        // Get minimum notice cutoff (in host timezone)
         var nowUtc = DateTime.UtcNow;
         var nowInHostTz = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, timeZoneInfo);
-        var minimumNoticeMinutes = 60; // TODO: Add MinimumNotice value object to EventType
+        var minimumNoticeMinutes = eventType.MinimumNotice.Minutes;
         var minimumNoticeEnd = nowInHostTz.AddMinutes(minimumNoticeMinutes);
 
         while (currentTime.AddMinutes(eventType.Duration.Minutes) <= baseEndTime)

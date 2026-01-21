@@ -88,6 +88,9 @@ public class EventTypeTests
         var description = "A quick sync call";
         var bufferBefore = 5;
         var bufferAfter = 10;
+        var minimumNotice = 120;
+        var bookingWindow = 30;
+        int? maxBookingsPerDay = 5;
         var color = "#FF5733";
 
         // Act
@@ -99,6 +102,9 @@ public class EventTypeTests
             description,
             bufferBefore,
             bufferAfter,
+            minimumNotice,
+            bookingWindow,
+            maxBookingsPerDay,
             color);
 
         // Assert
@@ -106,6 +112,9 @@ public class EventTypeTests
         Assert.Equal(description, result.Value.Description);
         Assert.Equal(bufferBefore, result.Value.BufferBefore.Minutes);
         Assert.Equal(bufferAfter, result.Value.BufferAfter.Minutes);
+        Assert.Equal(minimumNotice, result.Value.MinimumNotice.Minutes);
+        Assert.Equal(bookingWindow, result.Value.BookingWindow.Days);
+        Assert.Equal(maxBookingsPerDay, result.Value.MaxBookingsPerDay);
         Assert.Equal(color, result.Value.Color);
     }
 
@@ -129,6 +138,9 @@ public class EventTypeTests
             60,
             5,
             10,
+            120,  // minimumNoticeMinutes
+            30,   // bookingWindowDays
+            5,    // maxBookingsPerDay
             MeetingLocation.CreateGoogleMeet(),
             "#00FF00");
 
@@ -137,6 +149,9 @@ public class EventTypeTests
         Assert.Equal(newName, eventType.Name);
         Assert.Equal(newDescription, eventType.Description);
         Assert.Equal(60, eventType.Duration.Minutes);
+        Assert.Equal(120, eventType.MinimumNotice.Minutes);
+        Assert.Equal(30, eventType.BookingWindow.Days);
+        Assert.Equal(5, eventType.MaxBookingsPerDay);
     }
 
     [Fact]
