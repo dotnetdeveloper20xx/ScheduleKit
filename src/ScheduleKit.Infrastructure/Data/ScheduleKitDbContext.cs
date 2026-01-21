@@ -10,6 +10,7 @@ namespace ScheduleKit.Infrastructure.Data;
 /// </summary>
 public class ScheduleKitDbContext : DbContext, IUnitOfWork
 {
+    public DbSet<User> Users => Set<User>();
     public DbSet<EventType> EventTypes => Set<EventType>();
     public DbSet<BookingQuestion> BookingQuestions => Set<BookingQuestion>();
     public DbSet<Availability> Availabilities => Set<Availability>();

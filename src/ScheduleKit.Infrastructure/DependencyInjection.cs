@@ -1,8 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ScheduleKit.Application.Common.Interfaces;
 using ScheduleKit.Domain.Interfaces;
+using ScheduleKit.Domain.Services;
 using ScheduleKit.Infrastructure.Data;
 using ScheduleKit.Infrastructure.Repositories;
+using ScheduleKit.Infrastructure.Services;
 
 namespace ScheduleKit.Infrastructure;
 
@@ -44,10 +48,69 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ScheduleKitDbContext>());
 
         // Register repositories
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IEventTypeRepository, EventTypeRepository>();
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
         services.AddScoped<IAvailabilityOverrideRepository, AvailabilityOverrideRepository>();
+
+        // Register services
+        services.AddScoped<ISlotCalculator, SlotCalculator>();
+        services.AddScoped<ICalendarService, CalendarService>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IAuthService, AuthService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds email service configuration from configuration section.
+    /// </summary>
+    public static IServiceCollection AddEmailConfiguration(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var emailSettings = new EmailSettings();
+        configuration.GetSection(EmailSettings.SectionName).Bind(emailSettings);
+        services.Configure<EmailSettings>(opts =>
+        {
+            opts.Enabled = emailSettings.Enabled;
+            opts.SmtpHost = emailSettings.SmtpHost;
+            opts.SmtpPort = emailSettings.SmtpPort;
+            opts.UseSsl = emailSettings.UseSsl;
+            opts.Username = emailSettings.Username;
+            opts.Password = emailSettings.Password;
+            opts.FromEmail = emailSettings.FromEmail;
+            opts.FromName = emailSettings.FromName;
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds JWT authentication configuration from configuration section.
+    /// </summary>
+    public static IServiceCollection AddJwtConfiguration(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var jwtSettings = new JwtSettings();
+        configuration.GetSection(JwtSettings.SectionName).Bind(jwtSettings);
+
+        // Use a default secret for development if not configured
+        if (string.IsNullOrEmpty(jwtSettings.Secret))
+        {
+            jwtSettings.Secret = "ScheduleKit-Development-Secret-Key-Min-32-Chars!";
+        }
+
+        services.Configure<JwtSettings>(opts =>
+        {
+            opts.Secret = jwtSettings.Secret;
+            opts.Issuer = jwtSettings.Issuer;
+            opts.Audience = jwtSettings.Audience;
+            opts.ExpirationMinutes = jwtSettings.ExpirationMinutes;
+            opts.RefreshTokenExpirationDays = jwtSettings.RefreshTokenExpirationDays;
+        });
 
         return services;
     }

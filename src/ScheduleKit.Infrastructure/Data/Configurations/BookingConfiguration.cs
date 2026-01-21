@@ -56,6 +56,8 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.Property(b => b.MeetingLink)
             .HasMaxLength(500);
 
+        builder.Property(b => b.ReminderSentAtUtc);
+
         builder.Property(b => b.CreatedAtUtc)
             .IsRequired();
 
@@ -68,6 +70,7 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.HasIndex(b => b.RescheduleToken);
         builder.HasIndex(b => new { b.HostUserId, b.StartTimeUtc });
         builder.HasIndex(b => new { b.HostUserId, b.Status });
+        builder.HasIndex(b => new { b.Status, b.ReminderSentAtUtc, b.StartTimeUtc });
 
         // Relationship with EventType
         builder.HasOne(b => b.EventType)

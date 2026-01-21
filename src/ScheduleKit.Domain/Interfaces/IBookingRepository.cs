@@ -35,4 +35,9 @@ public interface IBookingRepository : IRepository<Booking>
         Guid hostUserId,
         DateOnly date,
         CancellationToken cancellationToken = default);
+
+    Task<List<Booking>> GetBookingsNeedingReminderAsync(
+        int reminderHoursBefore,
+        int batchSize,
+        CancellationToken cancellationToken = default);
 }

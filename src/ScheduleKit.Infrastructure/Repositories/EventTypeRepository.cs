@@ -41,6 +41,13 @@ public class EventTypeRepository : IEventTypeRepository
             .FirstOrDefaultAsync(e => e.HostUserId == hostUserId && e.Slug.Value == slug, cancellationToken);
     }
 
+    public async Task<EventType?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default)
+    {
+        return await _context.EventTypes
+            .Include(e => e.Questions.OrderBy(q => q.DisplayOrder))
+            .FirstOrDefaultAsync(e => e.Slug.Value == slug, cancellationToken);
+    }
+
     public async Task<List<EventType>> GetByHostUserIdAsync(Guid hostUserId, CancellationToken cancellationToken = default)
     {
         return await _context.EventTypes

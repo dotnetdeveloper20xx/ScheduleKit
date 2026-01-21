@@ -10,7 +10,7 @@ This document tracks the progress of all sprints in the ScheduleKit project. Upd
 
 | Sprint | Phase | Goal | Status | Progress |
 |--------|-------|------|--------|----------|
-| Sprint 1-2 | Foundation | Empty shell that runs and proves architecture | In Progress | 60% |
+| Sprint 1-2 | Foundation | Empty shell that runs and proves architecture | Complete | 100% |
 | Sprint 3-4 | Core Scheduling | Host defines availability, guests see slots | Not Started | 0% |
 | Sprint 5-6 | Booking Flow | Complete booking lifecycle | Not Started | 0% |
 | Sprint 7-8 | Real-Time & Polish | Production-ready feel | Not Started | 0% |
@@ -40,11 +40,11 @@ This document tracks the progress of all sprints in the ScheduleKit project. Upd
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Vite + React + TypeScript setup | Not Started | |
-| TanStack Query configuration | Not Started | |
-| API client with type generation | Not Started | |
-| Layout components | Not Started | |
-| Event type list/create (connects to API) | Not Started | |
+| Vite + React + TypeScript setup | ✅ Complete | Vite 6, React 18, TypeScript 5.7, Tailwind CSS 3.4 |
+| TanStack Query configuration | ✅ Complete | React Query v5 with devtools |
+| API client with type generation | ✅ Complete | Axios client with typed hooks |
+| Layout components | ✅ Complete | MainLayout, Sidebar, Header, PageContainer |
+| Event type list/create (connects to API) | ✅ Complete | List, Create, Edit pages with forms |
 
 ### Testing Tasks
 
@@ -169,3 +169,4 @@ This document tracks the progress of all sprints in the ScheduleKit project. Upd
 | 2026-01-20 | Sprint 1 | Initial sprint tracking document created | Developer |
 | 2026-01-20 | Sprint 1 | Completed all backend tasks - solution structure, domain, infrastructure, API | Developer |
 | 2026-01-20 | Sprint 1 | Completed test project structure with 85 passing tests | Developer |
+| 2026-01-21 | Sprint 1 | Completed all frontend tasks - React SPA with TanStack Query | Developer |

@@ -37,6 +37,7 @@ public class Booking : BaseEntity, IAggregateRoot
     public DateTime? CancelledAtUtc { get; private set; }
     public string? RescheduleToken { get; private set; }
     public string? MeetingLink { get; private set; }
+    public DateTime? ReminderSentAtUtc { get; private set; }
 
     public IReadOnlyCollection<BookingQuestionResponse> Responses => _responses.AsReadOnly();
 
@@ -189,6 +190,31 @@ public class Booking : BaseEntity, IAggregateRoot
         Status = BookingStatus.NoShow;
         SetUpdatedAt();
         return Result.Success();
+    }
+
+    /// <summary>
+    /// Marks that a reminder has been sent for this booking.
+    /// </summary>
+    public void MarkReminderSent()
+    {
+        ReminderSentAtUtc = DateTime.UtcNow;
+        SetUpdatedAt();
+    }
+
+    /// <summary>
+    /// Checks if a reminder is needed for this booking.
+    /// </summary>
+    /// <param name="reminderHoursBefore">Hours before the booking to send reminder.</param>
+    public bool NeedsReminder(int reminderHoursBefore = 24)
+    {
+        if (Status != BookingStatus.Confirmed)
+            return false;
+
+        if (ReminderSentAtUtc.HasValue)
+            return false;
+
+        var reminderTime = StartTimeUtc.AddHours(-reminderHoursBefore);
+        return DateTime.UtcNow >= reminderTime && DateTime.UtcNow < StartTimeUtc;
     }
 
     /// <summary>

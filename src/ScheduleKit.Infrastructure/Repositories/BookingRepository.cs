@@ -122,6 +122,25 @@ public class BookingRepository : IBookingRepository
                 cancellationToken);
     }
 
+    public async Task<List<Booking>> GetBookingsNeedingReminderAsync(
+        int reminderHoursBefore,
+        int batchSize,
+        CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        var reminderWindowEnd = now.AddHours(reminderHoursBefore);
+
+        return await _context.Bookings
+            .Where(b => b.Status == BookingStatus.Confirmed)
+            .Where(b => b.ReminderSentAtUtc == null)
+            .Where(b => b.StartTimeUtc > now) // Future bookings only
+            .Where(b => b.StartTimeUtc <= reminderWindowEnd) // Within reminder window
+            .Include(b => b.EventType)
+            .OrderBy(b => b.StartTimeUtc)
+            .Take(batchSize)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(Booking entity, CancellationToken cancellationToken = default)
     {
         await _context.Bookings.AddAsync(entity, cancellationToken);

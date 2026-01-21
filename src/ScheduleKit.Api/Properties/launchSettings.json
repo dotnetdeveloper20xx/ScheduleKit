@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "ScheduleKit.Api": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:58814;http://localhost:58815"
+    }
+  }
+}

@@ -23,6 +23,12 @@ bld/
 # Node
 node_modules/
 npm-debug.log
+.npm
+
+# Vite
+dist/
+dist-ssr/
+*.local
 
 # IDE
 .idea/
