@@ -98,3 +98,77 @@ public record UserResponse
     /// </summary>
     public string Timezone { get; init; } = "UTC";
 }
+
+/// <summary>
+/// Response model for available OAuth providers.
+/// </summary>
+public record OAuthProvidersResponse
+{
+    /// <summary>
+    /// List of available OAuth providers.
+    /// </summary>
+    public List<OAuthProviderInfo> Providers { get; init; } = new();
+}
+
+/// <summary>
+/// Information about an OAuth provider.
+/// </summary>
+public record OAuthProviderInfo
+{
+    /// <summary>
+    /// Provider identifier (e.g., "google", "microsoft").
+    /// </summary>
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Human-readable display name.
+    /// </summary>
+    public string DisplayName { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Icon class for UI rendering.
+    /// </summary>
+    public string IconClass { get; init; } = string.Empty;
+}
+
+/// <summary>
+/// Response model for OAuth authorization initiation.
+/// </summary>
+public record OAuthAuthorizeResponse
+{
+    /// <summary>
+    /// URL to redirect the user for OAuth authorization.
+    /// </summary>
+    public string AuthorizationUrl { get; init; } = string.Empty;
+
+    /// <summary>
+    /// State parameter for CSRF protection.
+    /// </summary>
+    public string State { get; init; } = string.Empty;
+}
+
+/// <summary>
+/// Request model for OAuth callback.
+/// </summary>
+public record OAuthCallbackRequest
+{
+    /// <summary>
+    /// OAuth provider name.
+    /// </summary>
+    public string Provider { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Authorization code from OAuth provider.
+    /// </summary>
+    public string Code { get; init; } = string.Empty;
+
+    /// <summary>
+    /// State parameter for CSRF validation.
+    /// </summary>
+    public string State { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Redirect URI used in the authorization request.
+    /// </summary>
+    public string RedirectUri { get; init; } = string.Empty;
+}

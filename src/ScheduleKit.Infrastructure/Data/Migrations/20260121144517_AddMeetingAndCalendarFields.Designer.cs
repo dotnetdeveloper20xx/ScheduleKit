@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScheduleKit.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ScheduleKit.Infrastructure.Data;
 namespace ScheduleKit.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ScheduleKitDbContext))]
-    partial class ScheduleKitDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260121144517_AddMeetingAndCalendarFields")]
+    partial class AddMeetingAndCalendarFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

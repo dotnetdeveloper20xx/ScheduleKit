@@ -37,6 +37,10 @@ public class Booking : BaseEntity, IAggregateRoot
     public DateTime? CancelledAtUtc { get; private set; }
     public string? RescheduleToken { get; private set; }
     public string? MeetingLink { get; private set; }
+    public string? MeetingPassword { get; private set; }
+    public string? ExternalMeetingId { get; private set; }
+    public string? CalendarEventId { get; private set; }
+    public string? CalendarLink { get; private set; }
     public DateTime? ReminderSentAtUtc { get; private set; }
 
     public IReadOnlyCollection<BookingQuestionResponse> Responses => _responses.AsReadOnly();
@@ -198,6 +202,27 @@ public class Booking : BaseEntity, IAggregateRoot
     public void MarkReminderSent()
     {
         ReminderSentAtUtc = DateTime.UtcNow;
+        SetUpdatedAt();
+    }
+
+    /// <summary>
+    /// Updates meeting information from video conferencing service.
+    /// </summary>
+    public void SetMeetingInfo(string? meetingLink, string? password, string? externalMeetingId)
+    {
+        MeetingLink = meetingLink;
+        MeetingPassword = password;
+        ExternalMeetingId = externalMeetingId;
+        SetUpdatedAt();
+    }
+
+    /// <summary>
+    /// Updates calendar sync information.
+    /// </summary>
+    public void SetCalendarInfo(string? calendarEventId, string? calendarLink)
+    {
+        CalendarEventId = calendarEventId;
+        CalendarLink = calendarLink;
         SetUpdatedAt();
     }
 

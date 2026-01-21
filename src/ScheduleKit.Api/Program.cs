@@ -71,6 +71,9 @@ builder.Services.AddInfrastructure(options =>
     options.UseInMemoryDatabase("ScheduleKitDb");
 });
 
+// Add external integration services (calendar, video conferencing, OAuth)
+builder.Services.AddExternalIntegrations(builder.Configuration);
+
 // Configure JWT settings
 builder.Services.AddJwtConfiguration(builder.Configuration);
 

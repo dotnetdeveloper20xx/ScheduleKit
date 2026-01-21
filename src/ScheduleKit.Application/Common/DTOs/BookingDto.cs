@@ -20,6 +20,8 @@ public record BookingResponse
     public string? CancellationReason { get; init; }
     public DateTime? CancelledAtUtc { get; init; }
     public string? MeetingLink { get; init; }
+    public string? MeetingPassword { get; init; }
+    public string? CalendarLink { get; init; }
     public string LocationType { get; init; } = string.Empty;
     public string? LocationDetails { get; init; }
     public string? LocationDisplayName { get; init; }
@@ -49,6 +51,8 @@ public record BookingConfirmationResponse
     public DateTime EndTimeUtc { get; init; }
     public string GuestTimezone { get; init; } = string.Empty;
     public string? MeetingLink { get; init; }
+    public string? MeetingPassword { get; init; }
+    public string? CalendarLink { get; init; }
     public string LocationType { get; init; } = string.Empty;
     public string? LocationDetails { get; init; }
     public string? LocationDisplayName { get; init; }

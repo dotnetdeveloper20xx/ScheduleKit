@@ -13,7 +13,7 @@ import { BookingsListPage, BookingDetailPage } from '@/features/bookings'
 import { PublicBookingPage } from '@/features/booking/PublicBookingPage'
 import { ReschedulePage } from '@/features/reschedule/ReschedulePage'
 import { WidgetPage } from '@/features/widget/WidgetPage'
-import { LoginPage, RegisterPage } from '@/features/auth'
+import { LoginPage, RegisterPage, MockOAuthPage, OAuthCallbackPage } from '@/features/auth'
 import { SettingsPage } from '@/features/settings'
 
 function App() {
@@ -25,6 +25,8 @@ function App() {
           {/* Auth Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/oauth/mock/:provider" element={<MockOAuthPage />} />
+          <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
           {/* Protected Host Dashboard Routes */}
           <Route element={<ProtectedRoute />}>

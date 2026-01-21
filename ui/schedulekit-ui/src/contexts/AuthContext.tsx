@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { authApi } from '@/api/auth';
-import type { UserResponse, LoginRequest, RegisterRequest } from '@/api/types';
+import type { UserResponse, LoginRequest, RegisterRequest, AuthResponse } from '@/api/types';
 
 interface AuthContextType {
   user: UserResponse | null;
@@ -17,6 +17,7 @@ interface AuthContextType {
   register: (request: RegisterRequest) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  setAuthData: (response: AuthResponse) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,6 +76,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearAuth();
   }, [clearAuth]);
 
+  // Set auth data (for OAuth callback)
+  const setAuthData = useCallback(
+    (response: AuthResponse) => {
+      saveAuth(response.accessToken, response.user);
+    },
+    [saveAuth]
+  );
+
   // Refresh user data
   const refreshUser = useCallback(async () => {
     try {
@@ -115,6 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         refreshUser,
+        setAuthData,
       }}
     >
       {children}

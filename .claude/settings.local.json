@@ -4,7 +4,31 @@
       "Bash(git init:*)",
       "Bash(git remote add:*)",
       "Bash(git fetch:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet sln add:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet build:*)",
+      "Bash(Remove-Item \"C:\\\\Users\\\\AfzalAhmed\\\\source\\\\repos\\\\dotnetdeveloper20xx\\\\ScheduleKit\\\\src\\\\ScheduleKit.Api\\\\Class1.cs\" -Force)",
+      "Bash(dotnet test:*)",
+      "Bash(node --version)",
+      "Bash(npm --version:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node node_modules/typescript/bin/tsc:*)",
+      "Bash(npm run lint)",
+      "Bash(dotnet ef migrations add:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(dotnet run:*)",
+      "Bash(npm run dev:*)",
+      "Bash(dotnet ef database update:*)",
+      "Bash(git reset:*)"
     ]
   }
 }

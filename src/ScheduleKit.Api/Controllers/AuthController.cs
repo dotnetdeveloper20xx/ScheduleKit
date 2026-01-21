@@ -4,6 +4,7 @@ using ScheduleKit.Api.Models;
 using ScheduleKit.Application.Commands.Auth;
 using ScheduleKit.Application.Common;
 using ScheduleKit.Application.Common.Interfaces;
+using ScheduleKit.Domain.Interfaces;
 
 namespace ScheduleKit.Api.Controllers;
 
@@ -146,4 +147,124 @@ public class AuthController : ControllerBase
             Timezone = user.Timezone
         });
     }
+
+    /// <summary>
+    /// Get available OAuth providers.
+    /// </summary>
+    /// <returns>List of supported OAuth providers.</returns>
+    [HttpGet("oauth/providers")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(OAuthProvidersResponse), StatusCodes.Status200OK)]
+    public IActionResult GetOAuthProviders()
+    {
+        var oAuthService = HttpContext.RequestServices.GetRequiredService<IOAuthService>();
+
+        return Ok(new OAuthProvidersResponse
+        {
+            Providers = oAuthService.SupportedProviders.Select(p => new OAuthProviderInfo
+            {
+                Name = p,
+                DisplayName = GetProviderDisplayName(p),
+                IconClass = GetProviderIconClass(p)
+            }).ToList()
+        });
+    }
+
+    /// <summary>
+    /// Initiate OAuth login flow.
+    /// </summary>
+    /// <param name="provider">OAuth provider (google, microsoft, github).</param>
+    /// <param name="redirectUri">Frontend callback URL.</param>
+    /// <returns>OAuth authorization URL.</returns>
+    [HttpGet("oauth/{provider}/authorize")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(OAuthAuthorizeResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public IActionResult OAuthAuthorize(string provider, [FromQuery] string redirectUri)
+    {
+        var oAuthService = HttpContext.RequestServices.GetRequiredService<IOAuthService>();
+
+        if (!oAuthService.SupportedProviders.Contains(provider.ToLowerInvariant()))
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid Provider",
+                Detail = $"OAuth provider '{provider}' is not supported.",
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        var state = oAuthService.GenerateState();
+        var authUrl = oAuthService.GetAuthorizationUrl(provider.ToLowerInvariant(), redirectUri, state);
+
+        return Ok(new OAuthAuthorizeResponse
+        {
+            AuthorizationUrl = authUrl,
+            State = state
+        });
+    }
+
+    /// <summary>
+    /// Handle OAuth callback and complete login.
+    /// </summary>
+    /// <param name="request">OAuth callback data.</param>
+    /// <returns>Authentication result with tokens.</returns>
+    [HttpPost("oauth/callback")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> OAuthCallback([FromBody] OAuthCallbackRequest request)
+    {
+        var command = new OAuthLoginCommand
+        {
+            Provider = request.Provider,
+            Code = request.Code,
+            State = request.State,
+            RedirectUri = request.RedirectUri
+        };
+
+        var result = await Mediator.Send(command);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "OAuth Login Failed",
+                Detail = result.Error,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+
+        var authResult = result.Value;
+        return Ok(new AuthResponse
+        {
+            AccessToken = authResult.AccessToken!,
+            RefreshToken = authResult.RefreshToken!,
+            ExpiresAt = authResult.ExpiresAt!.Value,
+            User = new UserResponse
+            {
+                Id = authResult.User!.Id,
+                Email = authResult.User.Email,
+                Name = authResult.User.Name,
+                Slug = authResult.User.Slug,
+                Timezone = authResult.User.Timezone
+            }
+        });
+    }
+
+    private static string GetProviderDisplayName(string provider) => provider switch
+    {
+        "google" => "Google",
+        "microsoft" => "Microsoft",
+        "github" => "GitHub",
+        _ => provider
+    };
+
+    private static string GetProviderIconClass(string provider) => provider switch
+    {
+        "google" => "google",
+        "microsoft" => "microsoft",
+        "github" => "github",
+        _ => "default"
+    };
 }

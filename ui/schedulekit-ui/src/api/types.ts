@@ -240,6 +240,8 @@ export interface BookingResponse {
   cancellationReason?: string;
   cancelledAtUtc?: string;
   meetingLink?: string;
+  meetingPassword?: string;
+  calendarLink?: string;
   locationType: string;
   locationDetails?: string;
   locationDisplayName?: string;
@@ -279,6 +281,8 @@ export interface BookingConfirmationResponse {
   endTimeUtc: string;
   guestTimezone: string;
   meetingLink?: string;
+  meetingPassword?: string;
+  calendarLink?: string;
   locationType: string;
   locationDetails?: string;
   locationDisplayName?: string;
@@ -341,4 +345,28 @@ export interface UpdateEmailPreferencesRequest {
   emailNotificationsEnabled: boolean;
   reminderEmailsEnabled: boolean;
   reminderHoursBefore: number;
+}
+
+// OAuth Types
+
+export interface OAuthProvidersResponse {
+  providers: OAuthProviderInfo[];
+}
+
+export interface OAuthProviderInfo {
+  name: string;
+  displayName: string;
+  iconClass: string;
+}
+
+export interface OAuthAuthorizeResponse {
+  authorizationUrl: string;
+  state: string;
+}
+
+export interface OAuthCallbackRequest {
+  provider: string;
+  code: string;
+  state: string;
+  redirectUri: string;
 }

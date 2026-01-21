@@ -27,6 +27,8 @@ public static class BookingMappings
             CancellationReason = booking.CancellationReason,
             CancelledAtUtc = booking.CancelledAtUtc,
             MeetingLink = booking.MeetingLink,
+            MeetingPassword = booking.MeetingPassword,
+            CalendarLink = booking.CalendarLink,
             LocationType = booking.EventType?.Location.Type.ToString() ?? string.Empty,
             LocationDetails = booking.EventType?.Location.Details,
             LocationDisplayName = booking.EventType?.Location.DisplayName,

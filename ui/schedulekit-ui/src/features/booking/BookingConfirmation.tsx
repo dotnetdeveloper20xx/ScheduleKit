@@ -138,10 +138,15 @@ export function BookingConfirmation({ confirmation }: BookingConfirmationProps) 
                         href={confirmation.meetingLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-primary-600 hover:text-primary-700"
+                        className="text-sm text-primary-600 hover:text-primary-700 break-all"
                       >
-                        {confirmation.meetingLink}
+                        Join Meeting
                       </a>
+                      {confirmation.meetingPassword && (
+                        <p className="mt-1 text-sm text-gray-500">
+                          Password: <code className="rounded bg-gray-100 px-1">{confirmation.meetingPassword}</code>
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -171,18 +176,35 @@ export function BookingConfirmation({ confirmation }: BookingConfirmationProps) 
             {/* Add to Calendar */}
             <div className="mt-8 border-t border-gray-200 pt-6">
               <p className="text-sm text-gray-500">Add to your calendar</p>
-              <div className="mt-3 flex justify-center gap-4">
-                <button className="rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
-                  <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zM12 18a6 6 0 110-12 6 6 0 010 12z" />
-                  </svg>
-                </button>
-                <button className="rounded-lg border border-gray-200 p-3 hover:bg-gray-50">
-                  <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17 2H7c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-5 2c.83 0 1.5.67 1.5 1.5S12.83 7 12 7s-1.5-.67-1.5-1.5S11.17 4 12 4zm0 16c-2.21 0-4-1.79-4-4h2c0 1.1.9 2 2 2s2-.9 2-2h2c0 2.21-1.79 4-4 4zm4-7H8v-2h8v2z" />
-                  </svg>
-                </button>
-              </div>
+              {confirmation.calendarLink ? (
+                <div className="mt-3">
+                  <a
+                    href={confirmation.calendarLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    View in Calendar
+                  </a>
+                  <p className="mt-2 text-xs text-gray-400">Event synced to your calendar</p>
+                </div>
+              ) : (
+                <div className="mt-3 flex justify-center gap-4">
+                  <button className="rounded-lg border border-gray-200 p-3 hover:bg-gray-50" title="Google Calendar">
+                    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zM12 18a6 6 0 110-12 6 6 0 010 12z" />
+                    </svg>
+                  </button>
+                  <button className="rounded-lg border border-gray-200 p-3 hover:bg-gray-50" title="Outlook">
+                    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17 2H7c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-5 2c.83 0 1.5.67 1.5 1.5S12.83 7 12 7s-1.5-.67-1.5-1.5S11.17 4 12 4zm0 16c-2.21 0-4-1.79-4-4h2c0 1.1.9 2 2 2s2-.9 2-2h2c0 2.21-1.79 4-4 4zm4-7H8v-2h8v2z" />
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

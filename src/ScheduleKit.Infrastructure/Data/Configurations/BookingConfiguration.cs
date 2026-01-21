@@ -56,6 +56,18 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.Property(b => b.MeetingLink)
             .HasMaxLength(500);
 
+        builder.Property(b => b.MeetingPassword)
+            .HasMaxLength(50);
+
+        builder.Property(b => b.ExternalMeetingId)
+            .HasMaxLength(100);
+
+        builder.Property(b => b.CalendarEventId)
+            .HasMaxLength(100);
+
+        builder.Property(b => b.CalendarLink)
+            .HasMaxLength(500);
+
         builder.Property(b => b.ReminderSentAtUtc);
 
         builder.Property(b => b.CreatedAtUtc)

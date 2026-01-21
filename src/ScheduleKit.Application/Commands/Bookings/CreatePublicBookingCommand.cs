@@ -84,6 +84,8 @@ public class CreatePublicBookingCommandHandler
     private readonly ISlotCalculator _slotCalculator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRealTimeNotificationService _notificationService;
+    private readonly IVideoConferenceService _videoConferenceService;
+    private readonly IExternalCalendarService _calendarService;
 
     public CreatePublicBookingCommandHandler(
         IEventTypeRepository eventTypeRepository,
@@ -92,7 +94,9 @@ public class CreatePublicBookingCommandHandler
         IAvailabilityOverrideRepository overrideRepository,
         ISlotCalculator slotCalculator,
         IUnitOfWork unitOfWork,
-        IRealTimeNotificationService notificationService)
+        IRealTimeNotificationService notificationService,
+        IVideoConferenceService videoConferenceService,
+        IExternalCalendarService calendarService)
     {
         _eventTypeRepository = eventTypeRepository;
         _bookingRepository = bookingRepository;
@@ -101,6 +105,8 @@ public class CreatePublicBookingCommandHandler
         _slotCalculator = slotCalculator;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
+        _videoConferenceService = videoConferenceService;
+        _calendarService = calendarService;
     }
 
     public async Task<Result<BookingConfirmationResponse>> Handle(
@@ -181,6 +187,59 @@ public class CreatePublicBookingCommandHandler
                 return Result.Failure<BookingConfirmationResponse>(addResult.Error);
         }
 
+        // Create video conference meeting if needed
+        var locationType = eventType.Location.Type.ToString();
+        if (_videoConferenceService.SupportedLocationTypes.Contains(locationType))
+        {
+            var meetingRequest = new MeetingRequest
+            {
+                BookingId = booking.Id,
+                HostUserId = eventType.HostUserId,
+                Title = $"{eventType.Name} with {request.GuestName}",
+                Description = $"Booking for {eventType.Name}",
+                StartTimeUtc = booking.StartTimeUtc,
+                EndTimeUtc = booking.EndTimeUtc,
+                DurationMinutes = eventType.Duration.Minutes,
+                GuestEmail = request.GuestEmail,
+                GuestName = request.GuestName,
+                LocationType = locationType
+            };
+
+            var meetingResult = await _videoConferenceService.CreateMeetingAsync(
+                meetingRequest, cancellationToken);
+
+            if (meetingResult.Success)
+            {
+                booking.SetMeetingInfo(
+                    meetingResult.JoinUrl,
+                    meetingResult.Password,
+                    meetingResult.ExternalMeetingId);
+            }
+        }
+
+        // Create calendar event
+        var calendarRequest = new CalendarEventRequest
+        {
+            BookingId = booking.Id,
+            HostUserId = eventType.HostUserId,
+            Title = $"{eventType.Name} with {request.GuestName}",
+            Description = $"Booking via ScheduleKit\n\nGuest: {request.GuestName}\nEmail: {request.GuestEmail}",
+            StartTimeUtc = booking.StartTimeUtc,
+            EndTimeUtc = booking.EndTimeUtc,
+            Location = eventType.Location.DisplayName ?? eventType.Location.Type.ToString(),
+            GuestEmail = request.GuestEmail,
+            GuestName = request.GuestName,
+            MeetingUrl = booking.MeetingLink
+        };
+
+        var calendarResult = await _calendarService.CreateEventAsync(
+            calendarRequest, cancellationToken);
+
+        if (calendarResult.Success)
+        {
+            booking.SetCalendarInfo(calendarResult.ExternalEventId, calendarResult.CalendarLink);
+        }
+
         await _bookingRepository.AddAsync(booking, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -218,6 +277,11 @@ public class CreatePublicBookingCommandHandler
             EndTimeUtc = booking.EndTimeUtc,
             GuestTimezone = booking.GuestTimezone,
             MeetingLink = booking.MeetingLink,
+            MeetingPassword = booking.MeetingPassword,
+            CalendarLink = booking.CalendarLink,
+            LocationType = eventType.Location.Type.ToString(),
+            LocationDetails = eventType.Location.Details,
+            LocationDisplayName = eventType.Location.DisplayName,
             CancellationLink = cancellationLink,
             RescheduleLink = rescheduleLink
         });

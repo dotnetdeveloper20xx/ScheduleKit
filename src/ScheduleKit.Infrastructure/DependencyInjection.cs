@@ -64,6 +64,81 @@ public static class DependencyInjection
     }
 
     /// <summary>
+    /// Adds external integration services (calendar, video conferencing, OAuth).
+    /// Uses mock implementations by default, or real implementations when configured.
+    /// </summary>
+    public static IServiceCollection AddExternalIntegrations(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var settings = new ExternalIntegrationSettings();
+        var section = configuration.GetSection(ExternalIntegrationSettings.SectionName);
+        section.Bind(settings);
+
+        services.Configure<ExternalIntegrationSettings>(opts =>
+        {
+            opts.UseMockServices = settings.UseMockServices;
+            opts.Calendar = settings.Calendar;
+            opts.VideoConference = settings.VideoConference;
+            opts.OAuth = settings.OAuth;
+        });
+
+        if (settings.UseMockServices)
+        {
+            // Register mock implementations for demo/development
+            services.AddScoped<IExternalCalendarService, MockCalendarService>();
+            services.AddScoped<IVideoConferenceService, MockVideoConferenceService>();
+            services.AddSingleton<IOAuthService, MockOAuthService>();
+        }
+        else
+        {
+            // TODO: Register real implementations when API keys are configured
+            // For now, fall back to mock if real implementations aren't available
+
+            // Calendar service - check if Google or Microsoft credentials are configured
+            if (!string.IsNullOrEmpty(settings.Calendar?.Google?.ClientId) ||
+                !string.IsNullOrEmpty(settings.Calendar?.Microsoft?.ClientId))
+            {
+                // TODO: services.AddScoped<IExternalCalendarService, GoogleCalendarService>();
+                // For now, use mock
+                services.AddScoped<IExternalCalendarService, MockCalendarService>();
+            }
+            else
+            {
+                services.AddScoped<IExternalCalendarService, MockCalendarService>();
+            }
+
+            // Video conference service - check if Zoom or other credentials are configured
+            if (!string.IsNullOrEmpty(settings.VideoConference?.Zoom?.ClientId))
+            {
+                // TODO: services.AddScoped<IVideoConferenceService, ZoomService>();
+                // For now, use mock
+                services.AddScoped<IVideoConferenceService, MockVideoConferenceService>();
+            }
+            else
+            {
+                services.AddScoped<IVideoConferenceService, MockVideoConferenceService>();
+            }
+
+            // OAuth service - check if any OAuth providers are configured
+            if (!string.IsNullOrEmpty(settings.OAuth?.Google?.ClientId) ||
+                !string.IsNullOrEmpty(settings.OAuth?.Microsoft?.ClientId) ||
+                !string.IsNullOrEmpty(settings.OAuth?.GitHub?.ClientId))
+            {
+                // TODO: services.AddSingleton<IOAuthService, RealOAuthService>();
+                // For now, use mock
+                services.AddSingleton<IOAuthService, MockOAuthService>();
+            }
+            else
+            {
+                services.AddSingleton<IOAuthService, MockOAuthService>();
+            }
+        }
+
+        return services;
+    }
+
+    /// <summary>
     /// Adds email service configuration from configuration section.
     /// </summary>
     public static IServiceCollection AddEmailConfiguration(

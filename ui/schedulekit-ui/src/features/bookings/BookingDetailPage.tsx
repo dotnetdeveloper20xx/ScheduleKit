@@ -237,7 +237,43 @@ export function BookingDetailPage() {
                         rel="noopener noreferrer"
                         className="text-sm text-primary-600 hover:text-primary-700"
                       >
-                        {booking.meetingLink}
+                        Join Meeting
+                      </a>
+                      {booking.meetingPassword && (
+                        <p className="mt-1 text-sm text-gray-500">
+                          Password: <code className="rounded bg-gray-100 px-1">{booking.meetingPassword}</code>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {booking.calendarLink && (
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+                      <svg
+                        className="h-5 w-5 text-green-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Calendar Event</p>
+                      <a
+                        href={booking.calendarLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary-600 hover:text-primary-700"
+                      >
+                        View in Calendar
                       </a>
                     </div>
                   </div>
