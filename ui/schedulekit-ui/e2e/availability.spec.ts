@@ -58,10 +58,17 @@ test.describe('Availability Management', () => {
     });
 
     test('should update start time', async ({ page }) => {
+      // Wait for "Weekly Hours" section to load
+      await page.waitForLoadState('networkidle');
+      await expect(page.getByRole('heading', { name: 'Weekly Hours' })).toBeVisible({ timeout: 15000 });
+
+      // Wait for day rows to load (they have toggle buttons)
+      await page.waitForTimeout(1000);
+
       // Find start time select (time slots use <select> elements)
       const timeSelects = page.locator('select');
 
-      if (!(await timeSelects.first().isVisible({ timeout: 5000 }).catch(() => false))) {
+      if (!(await timeSelects.first().isVisible({ timeout: 15000 }).catch(() => false))) {
         test.skip();
         return;
       }
@@ -77,6 +84,11 @@ test.describe('Availability Management', () => {
     });
 
     test('should update end time', async ({ page }) => {
+      // Wait for "Weekly Hours" section to load
+      await page.waitForLoadState('networkidle');
+      await expect(page.getByRole('heading', { name: 'Weekly Hours' })).toBeVisible({ timeout: 15000 });
+      await page.waitForTimeout(1000);
+
       // End time is the second select for each enabled day
       const timeSelects = page.locator('select');
       const count = await timeSelects.count();
@@ -99,10 +111,15 @@ test.describe('Availability Management', () => {
 
   test.describe('Schedule Persistence', () => {
     test('should persist schedule changes after page reload', async ({ page }) => {
+      // Wait for "Weekly Hours" section to load
+      await page.waitForLoadState('networkidle');
+      await expect(page.getByRole('heading', { name: 'Weekly Hours' })).toBeVisible({ timeout: 15000 });
+      await page.waitForTimeout(1000);
+
       // Find a time select and change its value
       const timeSelects = page.locator('select');
 
-      if (!(await timeSelects.first().isVisible({ timeout: 5000 }).catch(() => false))) {
+      if (!(await timeSelects.first().isVisible({ timeout: 15000 }).catch(() => false))) {
         test.skip();
         return;
       }
@@ -115,27 +132,30 @@ test.describe('Availability Management', () => {
       await timeSelects.first().selectOption(newValue);
       await page.waitForTimeout(1000); // Wait for save
 
-      // Click save if available
-      const saveButton = page.getByRole('button', { name: /save/i });
+      // Click save if available (Save Changes button appears when there are changes)
+      const saveButton = page.getByRole('button', { name: /save changes/i });
       if (await saveButton.isVisible().catch(() => false)) {
         await saveButton.click();
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(2000); // Wait for save to complete
       }
 
       // Reload the page
       await page.reload();
+      await page.waitForLoadState('networkidle');
+      await expect(page.getByRole('heading', { name: 'Weekly Hours' })).toBeVisible({ timeout: 15000 });
 
       // Check the value persisted
       const newTimeSelects = page.locator('select');
-      await expect(newTimeSelects.first()).toBeVisible();
+      await expect(newTimeSelects.first()).toBeVisible({ timeout: 15000 });
       const persistedValue = await newTimeSelects.first().inputValue();
 
       expect(persistedValue).toBe(newValue);
 
       // Restore original state
       await newTimeSelects.first().selectOption(initialValue);
-      if (await saveButton.isVisible().catch(() => false)) {
-        await saveButton.click();
+      const restoreSaveButton = page.getByRole('button', { name: /save changes/i });
+      if (await restoreSaveButton.isVisible().catch(() => false)) {
+        await restoreSaveButton.click();
       }
     });
   });

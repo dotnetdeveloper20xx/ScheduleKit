@@ -129,19 +129,33 @@ test.describe('Authentication', () => {
     test('should logout successfully', async ({ page }) => {
       await page.goto('/');
 
-      // Find and click logout button or link
-      const logoutButton = page.getByRole('button', { name: /logout|sign out/i });
-      const logoutLink = page.getByRole('link', { name: /logout|sign out/i });
+      // Wait for page to load
+      await page.waitForLoadState('networkidle');
 
-      if (await logoutButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await logoutButton.click();
-        await expect(page).toHaveURL(/\/login/);
-      } else if (await logoutLink.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await logoutLink.click();
+      // Logout is in a dropdown menu - first click the user avatar/name button to open dropdown
+      // The dropdown trigger is a button with the user's initial and a chevron icon
+      const userDropdownTrigger = page.locator('header').getByRole('button').filter({ has: page.locator('.rounded-full') });
+
+      if (await userDropdownTrigger.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await userDropdownTrigger.click();
+
+        // Wait for dropdown to open
+        await page.waitForTimeout(300);
+
+        // Now click "Sign out" button in the dropdown
+        const signOutButton = page.getByRole('button', { name: 'Sign out' });
+        await signOutButton.click();
+
         await expect(page).toHaveURL(/\/login/);
       } else {
-        // No logout button visible - may be in a dropdown menu
-        test.skip();
+        // Fallback - try direct logout button
+        const logoutButton = page.getByRole('button', { name: /logout|sign out/i });
+        if (await logoutButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await logoutButton.click();
+          await expect(page).toHaveURL(/\/login/);
+        } else {
+          test.skip();
+        }
       }
     });
   });
