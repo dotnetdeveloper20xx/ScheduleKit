@@ -111,8 +111,12 @@ test.describe('Event Types', () => {
 
   test.describe('Edit Event Type', () => {
     test('should navigate to edit page from card', async ({ page }) => {
-      // Event type cards are in a grid, look for the Edit button
-      const editButton = page.getByRole('button', { name: /edit/i }).first();
+      // Wait for page to load fully
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000);
+
+      // Find Edit button - Button component renders as <button> with text "Edit"
+      const editButton = page.getByText('Edit', { exact: true }).first();
 
       // Skip if no event types exist (no Edit button visible)
       if (!(await editButton.isVisible({ timeout: 5000 }).catch(() => false))) {
@@ -120,14 +124,17 @@ test.describe('Event Types', () => {
         return;
       }
 
-      // Click edit button
+      // Click the Edit button
       await editButton.click();
 
       await expect(page).toHaveURL(/\/event-types\/.*\/edit/);
     });
 
     test('should update event type name', async ({ page }) => {
-      const editButton = page.getByRole('button', { name: /edit/i }).first();
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000);
+
+      const editButton = page.getByText('Edit', { exact: true }).first();
 
       if (!(await editButton.isVisible({ timeout: 5000 }).catch(() => false))) {
         test.skip();

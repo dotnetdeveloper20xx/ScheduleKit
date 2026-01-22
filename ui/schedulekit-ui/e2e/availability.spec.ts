@@ -206,15 +206,18 @@ test.describe('Bookings List', () => {
   });
 
   test('should navigate to booking details', async ({ page }) => {
-    // View button is inside each booking card
-    const viewButton = page.getByRole('button', { name: 'View' }).first();
+    // Wait for bookings to load
+    await page.waitForLoadState('networkidle');
 
-    if (!(await viewButton.isVisible({ timeout: 5000 }).catch(() => false))) {
+    // View is a Link containing a Button with text "View"
+    const viewLink = page.getByRole('link', { name: 'View' }).first();
+
+    if (!(await viewLink.isVisible({ timeout: 5000 }).catch(() => false))) {
       test.skip();
       return;
     }
 
-    await viewButton.click();
+    await viewLink.click();
 
     // Should navigate to booking detail page
     await expect(page).toHaveURL(/\/bookings\/.+/);
