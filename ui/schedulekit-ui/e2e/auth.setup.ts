@@ -1,6 +1,8 @@
 import { test as setup, expect } from '@playwright/test';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const authFile = path.join(__dirname, '.auth/user.json');
 
 /**
@@ -8,38 +10,26 @@ const authFile = path.join(__dirname, '.auth/user.json');
  * Creates a test user and saves the authentication state to be reused.
  */
 setup('authenticate', async ({ page }) => {
-  // Use test credentials - these should match your test database
-  const testEmail = 'test@example.com';
-  const testPassword = 'TestPassword123!';
-  const testName = 'Test User';
+  // Use demo credentials that are seeded in the database
+  const testEmail = 'demo@schedulekit.com';
+  const testPassword = 'Demo123!';
 
-  // Try to login first
+  // Go to login page
   await page.goto('/login');
 
-  // Fill in login form
-  await page.getByLabel('Email').fill(testEmail);
-  await page.getByLabel('Password').fill(testPassword);
-  await page.getByRole('button', { name: /sign in/i }).click();
+  // Wait for page to load
+  await expect(page.getByRole('heading', { name: 'Sign in to your account' })).toBeVisible();
 
-  // Check if login succeeded or if we need to register
-  try {
-    // Wait for successful redirect to dashboard
-    await expect(page).toHaveURL('/', { timeout: 5000 });
-  } catch {
-    // Login failed, try to register
-    await page.goto('/register');
+  // Fill in login form using placeholders since labels have asterisks
+  await page.getByPlaceholder('you@example.com').fill(testEmail);
+  await page.getByPlaceholder('Enter your password').fill(testPassword);
+  await page.getByRole('button', { name: 'Sign in' }).click();
 
-    await page.getByLabel('Full Name').fill(testName);
-    await page.getByLabel('Email').fill(testEmail);
-    await page.getByLabel('Password').fill(testPassword);
-    await page.getByRole('button', { name: /create account/i }).click();
-
-    // Wait for redirect to dashboard after registration
-    await expect(page).toHaveURL('/');
-  }
+  // Wait for successful redirect to dashboard
+  await expect(page).toHaveURL('/', { timeout: 10000 });
 
   // Verify we're authenticated by checking for dashboard elements
-  await expect(page.getByText('Dashboard')).toBeVisible();
+  await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 5000 });
 
   // Save authentication state
   await page.context().storageState({ path: authFile });
