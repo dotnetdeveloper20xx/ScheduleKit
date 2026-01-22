@@ -1,11 +1,38 @@
 # ScheduleKit - Resume Point
 
 **Date:** January 22, 2026
-**Last Session:** E2E Test Fixes & Selector Updates
+**Last Session:** Frontend API Endpoint Casing Fix & Portfolio Assets
 
 ---
 
 ## What Was Completed Today (Jan 22, 2026)
+
+### Frontend API Endpoint Casing Fix (Critical Bug)
+
+**Problem:** Event Types page showed "Failed to load event types" error. Frontend API calls were failing with 404.
+
+**Root Cause:** Backend uses PascalCase routes (`/api/v1/EventTypes`) but frontend was using lowercase (`/api/v1/event-types`).
+
+**Files Fixed:**
+- `ui/schedulekit-ui/src/api/hooks/useEventTypes.ts` - `/event-types` → `/EventTypes`
+- `ui/schedulekit-ui/src/api/hooks/useBookings.ts` - `/bookings` → `/Bookings`
+- `ui/schedulekit-ui/src/api/hooks/useAvailability.ts` - `/availability` → `/Availability`
+- `ui/schedulekit-ui/src/api/hooks/useAnalytics.ts` - `/analytics` → `/Analytics`
+- `ui/schedulekit-ui/src/api/hooks/useQuestions.ts` - `/event-types` → `/EventTypes`
+- `ui/schedulekit-ui/src/api/hooks/useOAuth.ts` - Fixed duplicate `/api/v1/` prefix
+- `ui/schedulekit-ui/src/api/auth.ts` - `/auth` → `/Auth`, `/users` → `/Users`
+
+**Commit:** `3d98268` - Fix frontend API endpoint casing to match backend controllers
+
+### Portfolio Assets Added
+
+Added documentation and screenshots for portfolio demonstration:
+- `Faz Prompts/` - Development prompts and documentation templates (7 files)
+- `scheduleKit screen shots/` - Application UI screenshots (11 images)
+
+**Commit:** `a9b7928` - Add prompts and screenshots for portfolio demo
+
+---
 
 ### E2E Test Suite Fixed (Playwright)
 
@@ -217,6 +244,19 @@ node node_modules/@playwright/test/cli.js test --project=chromium
 
 ### Jan 22, 2026 (Today)
 ```
+# API Endpoint Casing Fix
+ui/schedulekit-ui/src/api/auth.ts - /auth → /Auth, /users → /Users
+ui/schedulekit-ui/src/api/hooks/useEventTypes.ts - /event-types → /EventTypes
+ui/schedulekit-ui/src/api/hooks/useBookings.ts - /bookings → /Bookings
+ui/schedulekit-ui/src/api/hooks/useAvailability.ts - /availability → /Availability
+ui/schedulekit-ui/src/api/hooks/useAnalytics.ts - /analytics → /Analytics
+ui/schedulekit-ui/src/api/hooks/useQuestions.ts - /event-types → /EventTypes
+ui/schedulekit-ui/src/api/hooks/useOAuth.ts - Fixed duplicate prefix
+
+# Portfolio Assets
+Faz Prompts/ - Development prompts (7 files)
+scheduleKit screen shots/ - UI screenshots (11 images)
+
 # E2E Test Fixes
 ui/schedulekit-ui/e2e/auth.setup.ts - ES module fix, demo credentials
 ui/schedulekit-ui/e2e/auth.spec.ts - Fixed selectors (placeholders vs labels)
@@ -313,7 +353,7 @@ ui/schedulekit-ui/src/features/auth/OAuthCallbackPage.tsx
 
 ## Git Status
 - **Branch:** main
-- **Latest Commit:** 167beb2 - Fix E2E tests: improve selectors and test data for 42/51 passing
+- **Latest Commit:** a9b7928 - Add prompts and screenshots for portfolio demo
 - **Remote:** https://github.com/dotnetdeveloper20xx/ScheduleKit.git
 
 ---
