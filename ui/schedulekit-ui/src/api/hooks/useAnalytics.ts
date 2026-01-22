@@ -43,7 +43,7 @@ export function useDashboardAnalytics() {
     queryKey: analyticsKeys.dashboard(),
     queryFn: async () => {
       const response = await apiClient.get<DashboardAnalyticsResponse>(
-        '/analytics/dashboard'
+        '/Analytics/dashboard'
       );
       return response.data;
     },

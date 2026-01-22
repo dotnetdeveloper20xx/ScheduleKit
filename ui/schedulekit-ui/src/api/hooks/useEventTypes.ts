@@ -20,7 +20,7 @@ export function useEventTypes() {
   return useQuery({
     queryKey: eventTypeKeys.lists(),
     queryFn: async () => {
-      const response = await apiClient.get<EventTypeResponse[]>('/event-types');
+      const response = await apiClient.get<EventTypeResponse[]>('/EventTypes');
       return response.data;
     },
   });
@@ -32,7 +32,7 @@ export function useEventType(id: string | undefined) {
     queryKey: eventTypeKeys.detail(id ?? ''),
     queryFn: async () => {
       const response = await apiClient.get<EventTypeResponse>(
-        `/event-types/${id}`
+        `/EventTypes/${id}`
       );
       return response.data;
     },
@@ -47,7 +47,7 @@ export function useCreateEventType() {
   return useMutation({
     mutationFn: async (data: CreateEventTypeRequest) => {
       const response = await apiClient.post<EventTypeResponse>(
-        '/event-types',
+        '/EventTypes',
         data
       );
       return response.data;
@@ -75,7 +75,7 @@ export function useUpdateEventType() {
       data: UpdateEventTypeRequest;
     }) => {
       const response = await apiClient.put<EventTypeResponse>(
-        `/event-types/${id}`,
+        `/EventTypes/${id}`,
         data
       );
       return response.data;
@@ -98,7 +98,7 @@ export function useDeleteEventType() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/event-types/${id}`);
+      await apiClient.delete(`/EventTypes/${id}`);
       return id;
     },
     onSuccess: (deletedId) => {
@@ -120,7 +120,7 @@ export function useToggleEventTypeStatus() {
   return useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
       const response = await apiClient.patch<EventTypeResponse>(
-        `/event-types/${id}/status`,
+        `/EventTypes/${id}/status`,
         { isActive }
       );
       return response.data;

@@ -22,7 +22,7 @@ export function useWeeklyAvailability() {
     queryKey: availabilityKeys.weekly(),
     queryFn: async () => {
       const response =
-        await apiClient.get<WeeklyAvailabilityResponse>('/availability');
+        await apiClient.get<WeeklyAvailabilityResponse>('/Availability');
       return response.data;
     },
   });
@@ -35,7 +35,7 @@ export function useUpdateWeeklyAvailability() {
   return useMutation({
     mutationFn: async (data: UpdateWeeklyAvailabilityRequest) => {
       const response = await apiClient.put<WeeklyAvailabilityResponse>(
-        '/availability',
+        '/Availability',
         data
       );
       return response.data;
@@ -62,7 +62,7 @@ export function useAvailabilityOverrides(fromDate?: string, toDate?: string) {
       if (toDate) params.append('toDate', toDate);
 
       const response = await apiClient.get<AvailabilityOverrideResponse[]>(
-        `/availability/overrides?${params.toString()}`
+        `/Availability/overrides?${params.toString()}`
       );
       return response.data;
     },
@@ -76,7 +76,7 @@ export function useCreateAvailabilityOverride() {
   return useMutation({
     mutationFn: async (data: CreateAvailabilityOverrideRequest) => {
       const response = await apiClient.post<AvailabilityOverrideResponse>(
-        '/availability/overrides',
+        '/Availability/overrides',
         data
       );
       return response.data;
@@ -96,7 +96,7 @@ export function useDeleteAvailabilityOverride() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/availability/overrides/${id}`);
+      await apiClient.delete(`/Availability/overrides/${id}`);
       return id;
     },
     onSuccess: () => {

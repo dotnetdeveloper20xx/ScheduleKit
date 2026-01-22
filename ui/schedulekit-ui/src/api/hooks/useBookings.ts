@@ -31,7 +31,7 @@ export function useBookings(params?: {
       if (params?.status) searchParams.append('status', params.status);
 
       const response = await apiClient.get<PaginatedResponse<BookingResponse>>(
-        `/bookings?${searchParams.toString()}`
+        `/Bookings?${searchParams.toString()}`
       );
       return response.data;
     },
@@ -43,7 +43,7 @@ export function useBooking(id: string) {
   return useQuery({
     queryKey: bookingsKeys.detail(id),
     queryFn: async () => {
-      const response = await apiClient.get<BookingResponse>(`/bookings/${id}`);
+      const response = await apiClient.get<BookingResponse>(`/Bookings/${id}`);
       return response.data;
     },
     enabled: !!id,
@@ -83,7 +83,7 @@ export function useCancelBooking() {
       id: string;
       reason?: string;
     }) => {
-      await apiClient.post(`/bookings/${id}/cancel`, { reason });
+      await apiClient.post(`/Bookings/${id}/cancel`, { reason });
       return id;
     },
     onSuccess: (id) => {
@@ -109,7 +109,7 @@ export function useRescheduleBooking() {
       newStartTimeUtc: string;
     }) => {
       const response = await apiClient.post<BookingResponse>(
-        `/bookings/${id}/reschedule`,
+        `/Bookings/${id}/reschedule`,
         { newStartTimeUtc }
       );
       return response.data;

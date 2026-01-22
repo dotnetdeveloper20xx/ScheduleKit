@@ -21,7 +21,7 @@ export function useAddQuestion() {
       data: AddBookingQuestionRequest;
     }) => {
       const response = await apiClient.post<BookingQuestionResponse>(
-        `/event-types/${eventTypeId}/questions`,
+        `/EventTypes/${eventTypeId}/questions`,
         data
       );
       return response.data;
@@ -54,7 +54,7 @@ export function useUpdateQuestion() {
       data: UpdateBookingQuestionRequest;
     }) => {
       const response = await apiClient.put<BookingQuestionResponse>(
-        `/event-types/${eventTypeId}/questions/${questionId}`,
+        `/EventTypes/${eventTypeId}/questions/${questionId}`,
         data
       );
       return response.data;
@@ -84,7 +84,7 @@ export function useDeleteQuestion() {
       questionId: string;
     }) => {
       await apiClient.delete(
-        `/event-types/${eventTypeId}/questions/${questionId}`
+        `/EventTypes/${eventTypeId}/questions/${questionId}`
       );
       return { eventTypeId, questionId };
     },
@@ -113,7 +113,7 @@ export function useReorderQuestions() {
       data: ReorderQuestionsRequest;
     }) => {
       await apiClient.post(
-        `/event-types/${eventTypeId}/questions/reorder`,
+        `/EventTypes/${eventTypeId}/questions/reorder`,
         data
       );
       return eventTypeId;

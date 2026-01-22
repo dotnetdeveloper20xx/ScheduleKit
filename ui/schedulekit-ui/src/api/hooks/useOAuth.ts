@@ -12,7 +12,7 @@ export function useOAuthProviders() {
     queryKey: ['oauth', 'providers'],
     queryFn: async () => {
       const response = await apiClient.get<OAuthProvidersResponse>(
-        '/api/v1/auth/oauth/providers'
+        '/Auth/oauth/providers'
       );
       return response.data;
     },
@@ -30,7 +30,7 @@ export function useOAuthAuthorize() {
       redirectUri: string;
     }) => {
       const response = await apiClient.get<OAuthAuthorizeResponse>(
-        `/api/v1/auth/oauth/${provider}/authorize`,
+        `/Auth/oauth/${provider}/authorize`,
         { params: { redirectUri } }
       );
       return response.data;
@@ -42,7 +42,7 @@ export function useOAuthCallback() {
   return useMutation({
     mutationFn: async (request: OAuthCallbackRequest) => {
       const response = await apiClient.post<AuthResponse>(
-        '/api/v1/auth/oauth/callback',
+        '/Auth/oauth/callback',
         request
       );
       return response.data;
