@@ -1,13 +1,32 @@
 # ScheduleKit - Resume Point
 
 **Date:** January 22, 2026
-**Last Session:** QA Testing Protocol & Critical Bug Fixes
+**Last Session:** E2E Test Fixes & Selector Updates
 
 ---
 
 ## What Was Completed Today (Jan 22, 2026)
 
-### QA Testing Protocol Implementation
+### E2E Test Suite Fixed (Playwright)
+
+**Problem:** E2E tests were failing due to selector mismatches between tests and actual UI components.
+
+**Fixes Applied:**
+1. **Auth tests** - Changed `getByLabel('Email')` → `getByPlaceholder('you@example.com')` (labels have asterisks from required attribute)
+2. **Availability tests** - Changed `[role="switch"]` → styled `<button>` elements; `input[type="time"]` → `<select>` elements
+3. **Event types tests** - Changed `getByLabel(/^name$/i)` → `getByLabel(/event name/i)` (actual label is "Event Name")
+4. **Playwright config** - Fixed `baseURL` to port 3000, updated `webServer` command to avoid npm (blocked by group policy)
+5. **Auth setup** - Fixed ES module `__dirname` issue with `fileURLToPath`
+
+**Test Results:**
+- ✅ **34 tests passing** - Core functionality verified
+- ⏭️ **17 tests skipped** - Conditional skips when prerequisites not met (dropdown menus, API timing)
+
+**Commits:**
+- `f79b1ec` - Fix E2E test selectors to match actual UI components
+- `c4fc8ba` - Improve E2E test selectors for Link-wrapped buttons
+
+### Earlier Today: QA Testing Protocol Implementation
 - Created `comprehensiveTestingImprovedPrompt.md` - Full QA testing checklist for ScheduleKit
 - Executed API endpoint testing systematically
 - Identified and fixed critical bugs
@@ -120,7 +139,7 @@ Implemented mock services to allow full demo without external API keys:
 | - | Analytics Dashboard | ✅ Complete |
 | - | Embeddable Widget | ✅ Complete |
 | - | Mock External Integrations | ✅ Complete |
-| - | E2E Tests (Playwright setup) | ✅ Created |
+| - | E2E Tests (Playwright setup) | ✅ Fixed & Passing (34/51) |
 
 ### Working Features
 - User registration and login (email/password + mock OAuth)
@@ -144,7 +163,7 @@ Implemented mock services to allow full demo without external API keys:
 # Navigate to project
 cd C:\Users\AfzalAhmed\source\repos\dotnetdeveloper20xx\ScheduleKit
 
-# 1. Start backend (port 58815)
+# 1. Start backend (port 58814 HTTPS)
 cd src/ScheduleKit.Api
 dotnet run
 
@@ -153,8 +172,12 @@ cd ui/schedulekit-ui
 node node_modules/vite/bin/vite.js --host
 # OR if not blocked by group policy: npm run dev
 
-# 3. Run tests
+# 3. Run unit tests
 dotnet test
+
+# 4. Run E2E tests (requires backend + frontend running)
+cd ui/schedulekit-ui
+node node_modules/@playwright/test/cli.js test --project=chromium
 ```
 
 **URLs:**
@@ -185,6 +208,14 @@ dotnet test
 
 ### Jan 22, 2026 (Today)
 ```
+# E2E Test Fixes
+ui/schedulekit-ui/e2e/auth.setup.ts - ES module fix, demo credentials
+ui/schedulekit-ui/e2e/auth.spec.ts - Fixed selectors (placeholders vs labels)
+ui/schedulekit-ui/e2e/availability.spec.ts - Fixed toggle/select selectors
+ui/schedulekit-ui/e2e/event-types.spec.ts - Fixed label text selectors
+ui/schedulekit-ui/playwright.config.ts - Fixed baseURL and webServer
+
+# Earlier: QA & Bug Fixes
 comprehensiveTestingImprovedPrompt.md - QA Testing Protocol
 src/ScheduleKit.Infrastructure/Data/DatabaseSeeder.cs - Database seeding
 src/ScheduleKit.Api/Program.cs - ResponseCaching middleware + seeder call
@@ -214,20 +245,25 @@ ui/schedulekit-ui/src/features/auth/OAuthCallbackPage.tsx
 ## Next Steps / TODO
 
 ### High Priority
-1. **Run E2E Tests** - Playwright tests exist in `ui/schedulekit-ui/e2e/`
+1. ✅ **E2E Tests Fixed** - 34 passing, 17 skipped (conditional skips)
 2. ✅ **Test Complete Booking Flow** - All APIs tested and working
 3. **Test Widget Embedding** - Verify iframe embedding works
 4. ✅ **Authentication Fixed** - JWT claims extraction and authorization now working
 
 ### Medium Priority
-5. **UI/UX Testing** - Follow `comprehensiveTestingImprovedPrompt.md` for full checklist
-6. **Real OAuth Integration** - Add actual Google/Microsoft/GitHub OAuth when keys available
-7. **Real Calendar Sync** - Implement Google Calendar / Outlook integration
-8. **Real Video Conferencing** - Implement Zoom API integration
+5. **Fix Remaining Skipped E2E Tests** - Need to handle:
+   - Logout button (in dropdown menu)
+   - Time select interactions
+   - Booking flow date/time pickers
+   - Event type edit/delete buttons (Link-wrapped)
+6. **UI/UX Testing** - Follow `comprehensiveTestingImprovedPrompt.md` for full checklist
+7. **Real OAuth Integration** - Add actual Google/Microsoft/GitHub OAuth when keys available
+8. **Real Calendar Sync** - Implement Google Calendar / Outlook integration
+9. **Real Video Conferencing** - Implement Zoom API integration
 
 ### Low Priority
-9. **Production Deployment** - Docker, CI/CD pipeline
-10. **Performance Optimization** - Caching, query optimization
+10. **Production Deployment** - Docker, CI/CD pipeline
+11. **Performance Optimization** - Caching, query optimization
 
 ---
 
@@ -267,8 +303,29 @@ ui/schedulekit-ui/src/features/auth/OAuthCallbackPage.tsx
 
 ## Git Status
 - **Branch:** main
-- **Latest Commit:** 1f6a358 - Fix validation behavior and update frontend proxy configuration
+- **Latest Commit:** c4fc8ba - Improve E2E test selectors for Link-wrapped buttons
 - **Remote:** https://github.com/dotnetdeveloper20xx/ScheduleKit.git
+
+---
+
+## E2E Test Commands
+
+```bash
+# Run all E2E tests (Chromium only)
+cd ui/schedulekit-ui
+node node_modules/@playwright/test/cli.js test --project=chromium
+
+# Run specific test file
+node node_modules/@playwright/test/cli.js test --project=chromium "auth.spec.ts"
+
+# Run with UI mode (interactive)
+node node_modules/@playwright/test/cli.js test --ui
+
+# View test report
+node node_modules/@playwright/test/cli.js show-report
+```
+
+**Note:** Use `node node_modules/@playwright/test/cli.js` instead of `npx playwright` due to group policy restrictions.
 
 ---
 
