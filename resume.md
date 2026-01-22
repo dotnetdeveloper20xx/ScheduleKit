@@ -1,13 +1,80 @@
 # ScheduleKit - Resume Point
 
-**Date:** January 21, 2026
-**Last Session:** Mock External Integrations & Bug Fixes Complete
+**Date:** January 22, 2026
+**Last Session:** QA Testing Protocol & Critical Bug Fixes
 
 ---
 
-## What Was Completed Today
+## What Was Completed Today (Jan 22, 2026)
 
-### Mock External Integrations (NEW - Major Feature)
+### QA Testing Protocol Implementation
+- Created `comprehensiveTestingImprovedPrompt.md` - Full QA testing checklist for ScheduleKit
+- Executed API endpoint testing systematically
+- Identified and fixed critical bugs
+
+### Critical Bug Fixes
+
+**1. ResponseCaching Middleware Missing (500 Error)**
+- **Issue:** Public slots/dates endpoints returned 500 error due to `VaryByQueryKeys` requiring ResponseCaching middleware
+- **Fix:** Added `builder.Services.AddResponseCaching()` and `app.UseResponseCaching()` to `Program.cs`
+- **Files:** `src/ScheduleKit.Api/Program.cs`
+
+**2. Database Seeding Added**
+- **Issue:** Application started with empty database - no demo data
+- **Fix:** Created `DatabaseSeeder.cs` that seeds on startup:
+  - 1 Demo host user (demo@schedulekit.com / Demo123!)
+  - 5 Event types (15min, 30min, 60min, 45min interview, 20min inactive)
+  - Default weekly availability (Mon-Fri 9am-5pm)
+  - 2 Availability overrides (blocked day, extended hours)
+  - 5 Sample bookings (upcoming, cancelled, etc.)
+- **Files:** `src/ScheduleKit.Infrastructure/Data/DatabaseSeeder.cs`
+
+**3. Authentication User ID Bug Fixed**
+- **Issue:** `GetCurrentUserId()` in ApiControllerBase returned hardcoded test GUID instead of actual authenticated user
+- **Fix:** Updated to extract user ID from JWT `sub` claim properly
+- **Files:** `src/ScheduleKit.Api/Controllers/ApiControllerBase.cs`
+
+**4. BookingsController Authentication Fixed**
+- **Issue:** BookingsController had its own hardcoded test user ID and didn't extend ApiControllerBase
+- **Fix:** Changed to extend ApiControllerBase and use GetCurrentUserId()
+- **Files:** `src/ScheduleKit.Api/Controllers/BookingsController.cs`
+
+**5. Authorization Enforcement Added**
+- **Issue:** Protected API endpoints didn't enforce JWT authentication
+- **Fix:** Added `[Authorize]` attribute to ApiControllerBase
+- **Files:** `src/ScheduleKit.Api/Controllers/ApiControllerBase.cs`
+
+**6. Vite Proxy HTTPS Redirect Fixed**
+- **Issue:** Vite proxy targeted HTTP port but backend redirects to HTTPS
+- **Fix:** Updated proxy to target `https://localhost:58814` directly
+- **Files:** `ui/schedulekit-ui/vite.config.ts`
+
+### Testing Results
+
+**API Endpoints Verified:**
+- ✅ Health check: `GET /health` → 200 OK
+- ✅ User registration: `POST /api/v1/Auth/register` → 200 + token
+- ✅ User login: `POST /api/v1/Auth/login` → 200 + token
+- ✅ OAuth providers: `GET /api/v1/Auth/oauth/providers` → Returns Google/Microsoft/GitHub
+- ✅ Public event type: `GET /api/v1/public/{slug}/{eventSlug}` → Returns event details
+- ✅ Available dates: `GET /api/v1/public/dates/{eventTypeId}` → Returns 60 days of availability
+- ✅ Available slots: `GET /api/v1/public/slots/{eventTypeId}` → Returns time slots (was broken, now fixed)
+- ✅ Create booking: `POST /api/v1/public/bookings` → Returns confirmation with meeting link
+
+**Seed Data Created:**
+| Entity | Count | Details |
+|--------|-------|---------|
+| Users | 1 | Demo host: demo@schedulekit.com |
+| Event Types | 5 | 15/30/45/60 min + inactive |
+| Availability | 7 | Mon-Fri enabled, Sat-Sun disabled |
+| Overrides | 2 | Blocked day + extended hours |
+| Bookings | 5 | Mix of upcoming and cancelled |
+
+---
+
+## What Was Completed Jan 21, 2026
+
+### Mock External Integrations (Major Feature)
 
 Implemented mock services to allow full demo without external API keys:
 
@@ -98,16 +165,36 @@ dotnet test
 
 ---
 
-## Test Account
-- **Email:** dotnetdeveloper20xx@hotmail.com
+## Test Accounts
+
+### Demo Host (Seeded)
+- **Email:** demo@schedulekit.com
+- **Password:** Demo123!
 - **Name:** Afzal Ahmed
-- **Note:** Uses in-memory database, resets on restart
+- **Slug:** afzal-ahmed
+- **Timezone:** America/New_York
+
+### Public Booking URL
+- `http://localhost:3000/book/afzal-ahmed/30-minute-consultation`
+
+**Note:** Uses in-memory database, data resets on restart but is re-seeded automatically.
 
 ---
 
-## Key Files Created Today
+## Key Files Created/Modified
 
-### New Backend Files
+### Jan 22, 2026 (Today)
+```
+comprehensiveTestingImprovedPrompt.md - QA Testing Protocol
+src/ScheduleKit.Infrastructure/Data/DatabaseSeeder.cs - Database seeding
+src/ScheduleKit.Api/Program.cs - ResponseCaching middleware + seeder call
+src/ScheduleKit.Infrastructure/DependencyInjection.cs - Seeder registration
+src/ScheduleKit.Api/Controllers/ApiControllerBase.cs - JWT claims + [Authorize]
+src/ScheduleKit.Api/Controllers/BookingsController.cs - Extends ApiControllerBase
+ui/schedulekit-ui/vite.config.ts - HTTPS proxy fix
+```
+
+### Jan 21, 2026
 ```
 src/ScheduleKit.Domain/Interfaces/ICalendarService.cs (IExternalCalendarService)
 src/ScheduleKit.Domain/Interfaces/IOAuthService.cs
@@ -117,25 +204,9 @@ src/ScheduleKit.Infrastructure/Services/MockOAuthService.cs
 src/ScheduleKit.Infrastructure/Services/MockVideoConferenceService.cs
 src/ScheduleKit.Infrastructure/Services/ExternalIntegrationSettings.cs
 src/ScheduleKit.Application/Commands/Auth/OAuthLoginCommand.cs
-src/ScheduleKit.Infrastructure/Data/Migrations/20260121144517_AddMeetingAndCalendarFields.cs
-```
-
-### New Frontend Files
-```
 ui/schedulekit-ui/src/api/hooks/useOAuth.ts
 ui/schedulekit-ui/src/features/auth/MockOAuthPage.tsx
 ui/schedulekit-ui/src/features/auth/OAuthCallbackPage.tsx
-```
-
-### Modified Files
-```
-src/ScheduleKit.Api/Controllers/AuthController.cs - Added OAuth endpoints
-src/ScheduleKit.Api/appsettings.json - Added ExternalIntegrations config
-src/ScheduleKit.Application/Common/Behaviors/ValidationBehavior.cs - Fixed reflection bug
-src/ScheduleKit.Domain/Entities/Booking.cs - Added meeting/calendar fields
-src/ScheduleKit.Infrastructure/DependencyInjection.cs - Added AddExternalIntegrations()
-ui/schedulekit-ui/src/features/auth/LoginPage.tsx - Added OAuth buttons
-ui/schedulekit-ui/vite.config.ts - Fixed proxy configuration
 ```
 
 ---
@@ -144,41 +215,45 @@ ui/schedulekit-ui/vite.config.ts - Fixed proxy configuration
 
 ### High Priority
 1. **Run E2E Tests** - Playwright tests exist in `ui/schedulekit-ui/e2e/`
-2. **Test Complete Booking Flow** - Create event → Book → Reschedule → Cancel
+2. ✅ **Test Complete Booking Flow** - All APIs tested and working
 3. **Test Widget Embedding** - Verify iframe embedding works
+4. ✅ **Authentication Fixed** - JWT claims extraction and authorization now working
 
 ### Medium Priority
-4. **Real OAuth Integration** - Add actual Google/Microsoft/GitHub OAuth when keys available
-5. **Real Calendar Sync** - Implement Google Calendar / Outlook integration
-6. **Real Video Conferencing** - Implement Zoom API integration
+5. **UI/UX Testing** - Follow `comprehensiveTestingImprovedPrompt.md` for full checklist
+6. **Real OAuth Integration** - Add actual Google/Microsoft/GitHub OAuth when keys available
+7. **Real Calendar Sync** - Implement Google Calendar / Outlook integration
+8. **Real Video Conferencing** - Implement Zoom API integration
 
 ### Low Priority
-7. **Production Deployment** - Docker, CI/CD pipeline
-8. **Performance Optimization** - Caching, query optimization
+9. **Production Deployment** - Docker, CI/CD pipeline
+10. **Performance Optimization** - Caching, query optimization
 
 ---
 
 ## API Endpoints Summary
 
-### Authentication
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - Login with email/password
-- `GET /api/v1/auth/me` - Get current user
-- `GET /api/v1/auth/oauth/providers` - Get OAuth providers
-- `GET /api/v1/auth/oauth/{provider}/authorize` - Start OAuth flow
-- `POST /api/v1/auth/oauth/callback` - Complete OAuth flow
+**Note:** Endpoints use PascalCase (e.g., `/api/v1/EventTypes` not `/api/v1/event-types`)
 
-### Event Types
-- `GET /api/v1/event-types` - List event types
-- `POST /api/v1/event-types` - Create event type
-- `PUT /api/v1/event-types/{id}` - Update event type
-- `DELETE /api/v1/event-types/{id}` - Delete event type
+### Authentication (No auth required)
+- `POST /api/v1/Auth/register` - Register new user
+- `POST /api/v1/Auth/login` - Login with email/password
+- `GET /api/v1/Auth/me` - Get current user
+- `GET /api/v1/Auth/oauth/providers` - Get OAuth providers
+- `GET /api/v1/Auth/oauth/{provider}/authorize` - Start OAuth flow
+- `POST /api/v1/Auth/oauth/callback` - Complete OAuth flow
 
-### Bookings
-- `GET /api/v1/bookings` - List bookings (paginated)
-- `GET /api/v1/bookings/{id}` - Get booking details
-- `POST /api/v1/bookings/{id}/cancel` - Cancel booking
-- `POST /api/v1/bookings/{id}/reschedule` - Reschedule booking
+### Event Types (Requires JWT)
+- `GET /api/v1/EventTypes` - List event types
+- `POST /api/v1/EventTypes` - Create event type
+- `PUT /api/v1/EventTypes/{id}` - Update event type
+- `DELETE /api/v1/EventTypes/{id}` - Delete event type
+
+### Bookings (Requires JWT)
+- `GET /api/v1/Bookings` - List bookings (paginated)
+- `GET /api/v1/Bookings/{id}` - Get booking details
+- `POST /api/v1/Bookings/{id}/cancel` - Cancel booking
+- `POST /api/v1/Bookings/{id}/reschedule` - Reschedule booking
 
 ### Public (Guest-facing)
 - `GET /api/v1/public/{hostSlug}/{eventSlug}` - Get event type

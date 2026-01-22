@@ -60,6 +60,9 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IAuthService, AuthService>();
 
+        // Register database seeder
+        services.AddScoped<DatabaseSeeder>();
+
         return services;
     }
 

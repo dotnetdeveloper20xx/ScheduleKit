@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ScheduleKit.Domain.Common;
 
@@ -6,10 +7,12 @@ namespace ScheduleKit.Api.Controllers;
 
 /// <summary>
 /// Base controller providing common functionality for all API controllers.
+/// Requires authentication by default for all endpoints.
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
 [Produces("application/json")]
+[Authorize]
 public abstract class ApiControllerBase : ControllerBase
 {
     private ISender? _mediator;
@@ -71,16 +74,18 @@ public abstract class ApiControllerBase : ControllerBase
     }
 
     /// <summary>
-    /// Gets the current user ID from claims.
-    /// For now, returns a test user ID. Will be replaced with actual auth.
+    /// Gets the current user ID from JWT claims.
     /// </summary>
     protected Guid GetCurrentUserId()
     {
-        // TODO: Replace with actual user ID from claims when auth is implemented
-        // var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-        // return userIdClaim != null ? Guid.Parse(userIdClaim.Value) : Guid.Empty;
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
+                          ?? User.FindFirst("sub");
 
-        // For development/testing, use a consistent test user ID
-        return Guid.Parse("00000000-0000-0000-0000-000000000001");
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            return userId;
+        }
+
+        return Guid.Empty;
     }
 }

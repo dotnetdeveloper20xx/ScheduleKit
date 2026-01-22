@@ -10,18 +10,8 @@ namespace ScheduleKit.Api.Controllers;
 /// <summary>
 /// API endpoints for managing bookings.
 /// </summary>
-[ApiController]
-[Route("api/v1/[controller]")]
-[Produces("application/json")]
-public class BookingsController : ControllerBase
+public class BookingsController : ApiControllerBase
 {
-    private MediatR.ISender? _mediator;
-
-    protected MediatR.ISender Mediator =>
-        _mediator ??= HttpContext.RequestServices.GetRequiredService<MediatR.ISender>();
-
-    // TODO: Get from authenticated user context
-    private static readonly Guid TestHostUserId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
     /// <summary>
     /// Get a paginated list of bookings for the authenticated host.
@@ -44,7 +34,7 @@ public class BookingsController : ControllerBase
     {
         var query = new GetBookingsQuery
         {
-            HostUserId = TestHostUserId,
+            HostUserId = GetCurrentUserId(),
             Page = page,
             PageSize = pageSize,
             Status = status,
@@ -80,7 +70,7 @@ public class BookingsController : ControllerBase
         var query = new GetBookingByIdQuery
         {
             BookingId = id,
-            HostUserId = TestHostUserId
+            HostUserId = GetCurrentUserId()
         };
 
         var result = await Mediator.Send(query);
@@ -113,7 +103,7 @@ public class BookingsController : ControllerBase
         var command = new CancelBookingCommand
         {
             BookingId = id,
-            RequestedByUserId = TestHostUserId,
+            RequestedByUserId = GetCurrentUserId(),
             IsHost = true,
             Reason = request?.Reason
         };
@@ -158,7 +148,7 @@ public class BookingsController : ControllerBase
         var command = new RescheduleBookingCommand
         {
             BookingId = id,
-            HostUserId = TestHostUserId,
+            HostUserId = GetCurrentUserId(),
             NewStartTimeUtc = request.NewStartTimeUtc
         };
 
@@ -201,7 +191,7 @@ public class BookingsController : ControllerBase
         var query = new GetBookingByIdQuery
         {
             BookingId = id,
-            HostUserId = TestHostUserId
+            HostUserId = GetCurrentUserId()
         };
 
         var result = await Mediator.Send(query);

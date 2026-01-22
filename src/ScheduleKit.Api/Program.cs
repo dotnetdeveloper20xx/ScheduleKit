@@ -139,6 +139,9 @@ builder.Services.AddHostedService<BookingReminderService>();
 // Add health checks
 builder.Services.AddHealthChecks();
 
+// Add response caching (required for VaryByQueryKeys in ResponseCache attribute)
+builder.Services.AddResponseCaching();
+
 // CORS for frontend
 builder.Services.AddCors(options =>
 {
@@ -152,6 +155,14 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Seed the database in development
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<ScheduleKit.Infrastructure.Data.DatabaseSeeder>();
+    await seeder.SeedAsync();
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
@@ -169,6 +180,8 @@ app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
+
+app.UseResponseCaching();
 
 app.UseAuthentication();
 app.UseAuthorization();
